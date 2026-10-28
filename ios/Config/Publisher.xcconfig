@@ -1,0 +1,10 @@
+// Set your registered identifier, Apple team, and hosted public pages before release.
+// This file contains public configuration only. Never put certificates or API keys here.
+STUDIO_BUNDLE_IDENTIFIER = com.example.blackjackstudio
+DEVELOPMENT_TEAM =
+PRO_PRODUCT_ID = $(STUDIO_BUNDLE_IDENTIFIER).pro
+
+// xcconfig treats // as a comment. Use https:/$()/domain.example/path for HTTPS values.
+STUDIO_PRIVACY_POLICY_URL =
+STUDIO_TERMS_OF_USE_URL =
+STUDIO_SUPPORT_URL =

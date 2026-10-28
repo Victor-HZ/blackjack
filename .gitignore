@@ -1,0 +1,24 @@
+node_modules/
+dist/
+.vite/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Native iOS / Swift
+**/.build/
+**/.swiftpm/
+**/xcuserdata/
+*.xcuserstate
+.DS_Store
+.derivedData/
+DerivedData/
+TestResults/
+*.xcresult/
+*.xcarchive/
+*.ipa
+*.p12
+*.mobileprovision

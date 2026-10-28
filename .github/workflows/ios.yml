@@ -1,0 +1,99 @@
+name: iOS validation
+
+on:
+  push:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-tests:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show selected Apple toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Check deterministic project and property lists
+        run: |
+          python3 ios/scripts/generate-xcode-project.py --check
+          plutil -lint ios/BlackjackStudio.xcodeproj/project.pbxproj
+          plutil -lint ios/BlackjackStudio/Resources/Info.plist
+          plutil -lint ios/BlackjackStudio/Resources/PrivacyInfo.xcprivacy
+
+      - name: Test local Swift packages
+        run: |
+          set -euo pipefail
+          for package in BlackjackCore TrainingCore StudioCore; do
+            swift test --package-path "ios/Packages/$package" --jobs 4
+          done
+
+      - name: Select an available iPhone simulator
+        run: |
+          set -euo pipefail
+          simulator_id="$(python3 - <<'PY'
+          import json, re, subprocess
+          devices = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '--json']))['devices']
+          choices = []
+          for runtime, items in devices.items():
+              if '.iOS-' not in runtime:
+                  continue
+              version = tuple(map(int, re.findall(r'\d+', runtime.split('.iOS-')[-1])))
+              for device in items:
+                  if device.get('isAvailable') and device.get('name', '').startswith('iPhone'):
+                      choices.append((version, device['name'], device['udid']))
+          if not choices:
+              raise SystemExit('No available iPhone simulator runtime is installed on this runner.')
+          print(sorted(choices, reverse=True)[0][2])
+          PY
+          )"
+          printf 'SIMULATOR_ID=%s\n' "$simulator_id" >> "$GITHUB_ENV"
+          xcrun simctl bootstatus "$simulator_id" -b
+
+      - name: Build Release for simulator without signing
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project ios/BlackjackStudio.xcodeproj \
+            -scheme 'BlackjackStudio Release' \
+            -configuration Release \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -derivedDataPath .derivedData/BlackjackStudio \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run native UI tests
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -project ios/BlackjackStudio.xcodeproj \
+            -scheme BlackjackStudio \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -derivedDataPath .derivedData/BlackjackStudio \
+            -resultBundlePath TestResults/BlackjackStudio.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Preserve Xcode test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-results
+          path: TestResults/BlackjackStudio.xcresult
+          if-no-files-found: ignore
+          retention-days: 7

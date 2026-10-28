@@ -1,0 +1,34 @@
+{
+  "identifier" : "B1AC57D0",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "57D10A01",
+      "localizations" : [
+        {
+          "description" : "The complete training path, every drill, and advanced table rules. One payment, no subscription.",
+          "displayName" : "Blackjack Studio Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.example.blackjackstudio.pro",
+      "referenceName" : "Studio Pro — Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+      { "current" : null, "enabled" : false, "name" : "Load Products" },
+      { "current" : null, "enabled" : false, "name" : "Purchase" },
+      { "current" : null, "enabled" : false, "name" : "Verification" },
+      { "current" : null, "enabled" : false, "name" : "App Store Sync" }
+    ]
+  },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 3, "minor" : 0 }
+}

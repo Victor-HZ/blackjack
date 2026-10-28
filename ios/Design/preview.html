@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Blackjack Studio — iOS design review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #ecefe8;
+      --background: #f6f7f2;
+      --surface: #ffffff;
+      --ink: #203b2e;
+      --muted: #6a7866;
+      --line: #e3e8db;
+      --soft: #edf2e3;
+      --forest: #174735;
+      --lime: #dfedb8;
+      --coral: #ad5747;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      font-synthesis: none;
+      -webkit-font-smoothing: antialiased;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); }
+    button { font: inherit; cursor: pointer; color: inherit; border: 0; background: none; -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 3px solid #9fbd72; outline-offset: 3px; }
+    button:disabled { cursor: default; opacity: .55; }
+    h1, h2, h3, p { margin: 0; }
+    svg { display: block; }
+    .review-shell { max-width: 1530px; margin: 0 auto; padding: 42px 38px 30px; }
+    .review-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 30px; margin-bottom: 33px; }
+    .review-brand { font-size: 10px; font-weight: 750; letter-spacing: 2.7px; color: #6b7e5e; margin-bottom: 13px; }
+    .review-title { font-size: clamp(26px, 2.7vw, 39px); line-height: 1.15; letter-spacing: -1.4px; font-weight: 720; }
+    .review-subtitle { margin-top: 12px; font-size: 12px; line-height: 1.7; color: var(--muted); max-width: 620px; }
+    .review-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 13px; padding-top: 3px; }
+    .prototype-badge { border: 1px solid #a3b18e; border-radius: 30px; padding: 8px 12px; font-size: 9px; letter-spacing: 1.3px; font-weight: 650; white-space: nowrap; }
+    .theme-toggle { min-height: 35px; padding: 7px 13px; display: flex; align-items: center; gap: 7px; background: #ffffff80; border-radius: 9px; font-size: 11px; }
+    .gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 25px; align-items: start; }
+    .phone-column { min-width: 0; }
+    .phone-caption { display: flex; justify-content: space-between; align-items: center; font-size: 9px; letter-spacing: 1.7px; color: #7d8c71; margin: 0 7px 14px; }
+    .phone-caption strong { font-weight: 650; color: var(--ink); }
+    .device { width: 100%; padding: 7px; background: #242b25; border: 1px solid #4a544b; border-radius: 46px; box-shadow: 0 20px 35px #17271b15, 0 4px 6px #17271b15, inset 0 0 0 2px #151f18; position: relative; }
+    .device::before, .device::after { content: ''; position: absolute; width: 3px; background: #394339; left: -3px; border-radius: 2px; }
+    .device::before { top: 100px; height: 28px; }
+    .device::after { top: 142px; height: 44px; }
+    .screen-clip { overflow: hidden; width: 100%; aspect-ratio: 390 / 844; border-radius: 38px; background: var(--background); position: relative; isolation: isolate; }
+    .screen { width: 390px; height: 844px; transform-origin: top left; position: absolute; inset: 0 auto auto 0; overflow: hidden; background: var(--background); }
+    .status-bar { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 6px 29px 0; color: var(--ink); font-size: 14px; font-weight: 650; position: relative; }
+    .island { position: absolute; width: 112px; height: 30px; border-radius: 21px; background: #111812; top: 9px; left: 139px; }
+    .status-icons { display: flex; align-items: center; gap: 5px; }
+    .status-icons svg { width: 15px; height: 15px; }
+    .battery { width: 23px; height: 11px; border: 1.3px solid currentColor; border-radius: 3px; padding: 1.6px; position: relative; margin-left: 2px; }
+    .battery::after { content: ''; position: absolute; width: 2px; height: 5px; top: 2px; right: -4px; border-radius: 1px; background: currentColor; opacity: .5; }
+    .battery span { display: block; background: currentColor; width: 100%; height: 100%; border-radius: 1px; }
+    .screen-content { height: 704px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding: 16px 22px 30px; }
+    .screen-content::-webkit-scrollbar { display: none; }
+    .screen-content.no-tab { height: 752px; }
+    .tab-bar { height: 82px; padding: 8px 19px 21px; display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); }
+    .tab-button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; color: #94a28c; min-height: 46px; }
+    .tab-button svg { width: 21px; height: 21px; }
+    .tab-button.active { color: var(--ink); font-weight: 650; }
+    .home-indicator { position: absolute; bottom: 7px; left: 129px; width: 132px; height: 5px; border-radius: 5px; background: var(--ink); opacity: .9; pointer-events: none; z-index: 3; }
+    .screen-note { min-height: 33px; margin: 15px 5px 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .eyebrow { font-size: 9px; letter-spacing: 2.1px; font-weight: 750; color: #849573; }
+    .native-title { font-size: 34px; line-height: 1.12; letter-spacing: -1.25px; font-weight: 750; }
+    .native-subtitle { font-size: 14px; line-height: 1.5; color: var(--muted); }
+    .top-heading { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 24px; }
+    .top-heading .native-title { margin-top: 10px; }
+    .round-button { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); }
+    .round-button svg { width: 20px; height: 20px; }
+    .session-hero { border-radius: 29px; background: linear-gradient(135deg, #1c4b38, #133a2c); color: #fff; padding: 24px; margin-bottom: 19px; position: relative; overflow: hidden; }
+    .session-hero .eyebrow { color: #bfd0a4; font-size: 8px; letter-spacing: 1.9px; }
+    .session-hero h2 { margin-top: 14px; max-width: 180px; font-size: 29px; line-height: 1.1; letter-spacing: -.9px; }
+    .session-hero p { margin-top: 11px; font-size: 13px; line-height: 1.6; color: #c3d2c0; max-width: 190px; }
+    .hero-card { position: absolute; right: 25px; top: 51px; transform: rotate(12deg); }
+    .session-meta { margin-top: 24px; margin-bottom: 17px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 9px; color: #b7cbb1; }
+    .session-meta span:first-child { display: flex; align-items: center; gap: 5px; }
+    .primary { min-height: 50px; padding: 13px 19px; width: 100%; border-radius: 16px; color: #173d2b; background: var(--lime); font-size: 15px; font-weight: 650; display: flex; justify-content: center; align-items: center; gap: 10px; }
+    .primary.spread { justify-content: space-between; }
+    .primary svg { width: 19px; height: 19px; }
+    .primary.dark { background: var(--forest); color: #f1f4e7; }
+    .moment { display: flex; align-items: center; gap: 14px; padding: 18px; border: 1px solid var(--line); background: var(--surface); border-radius: 22px; margin-bottom: 25px; }
+    .moment-ring { width: 43px; height: 43px; border-radius: 50%; border: 4px solid var(--soft); border-right-color: #4c7654; border-top-color: #4c7654; display: grid; place-items: center; }
+    .moment-ring svg { width: 18px; height: 18px; }
+    .moment strong { display: block; font-size: 14px; }
+    .moment p { margin-top: 5px; font-size: 11px; color: var(--muted); }
+    .moment-total { margin-left: auto; font-size: 24px; font-weight: 700; }
+    .section-title { font-size: 20px; letter-spacing: -.6px; margin-bottom: 7px; }
+    .section-subtitle { color: var(--muted); font-size: 12px; margin-bottom: 17px; }
+    .drill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .drill-tile { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 17px; min-height: 143px; display: flex; flex-direction: column; align-items: flex-start; }
+    .tile-top { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 16px; }
+    .tile-symbol { background: var(--soft); width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; }
+    .tile-symbol svg { width: 21px; height: 21px; }
+    .tile-top > svg { width: 12px; height: 12px; color: var(--muted); }
+    .drill-tile strong { font-size: 14px; letter-spacing: -.2px; }
+    .drill-tile small { color: var(--muted); font-size: 11px; margin-top: 7px; }
+    .playing-card { width: 85px; height: 120px; border-radius: 12px; background: #faf9f0; color: #21422e; position: relative; box-shadow: 0 5px 12px #061b1b25; border: 1px solid #fff; font-family: Georgia, serif; }
+    .playing-card.small { width: 53px; height: 75px; border-radius: 7px; }
+    .playing-card.red { color: #ae5648; }
+    .card-corner { position: absolute; left: 8px; top: 7px; font-size: 23px; line-height: 1; text-align: center; font-weight: 600; }
+    .card-corner i { display: block; font-style: normal; font-size: 14px; }
+    .card-corner.bottom { transform: rotate(180deg); left: auto; top: auto; bottom: 7px; right: 8px; }
+    .card-suit { position: absolute; inset: 0; display: grid; place-items: center; font-size: 37px; }
+    .playing-card.small .card-corner { font-size: 15px; left: 5px; top: 5px; }
+    .playing-card.small .card-corner i { font-size: 9px; }
+    .playing-card.small .card-corner.bottom { left: auto; top: auto; right: 5px; bottom: 5px; }
+    .playing-card.small .card-suit { font-size: 25px; }
+    .nav-heading { display: flex; align-items: center; justify-content: space-between; height: 44px; margin: -10px -5px 21px; }
+    .nav-heading h2 { font-size: 16px; letter-spacing: -.3px; font-weight: 650; }
+    .icon-button { width: 44px; height: 44px; display: grid; place-items: center; }
+    .icon-button svg { width: 20px; height: 20px; }
+    .drill-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 11px; }
+    .progress-track { height: 5px; border-radius: 8px; background: var(--line); overflow: hidden; margin-bottom: 24px; }
+    .progress-track span { display: block; height: 100%; background: var(--forest); border-radius: 8px; transition: width .2s; }
+    .drill-table { height: 231px; border-radius: 27px; background: linear-gradient(130deg, #20553e, #163d2e); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .drill-table::before { content: ''; position: absolute; width: 225px; height: 155px; border: 1px solid #93aa7130; border-radius: 50%; }
+    .drill-table .playing-card { width: 95px; height: 135px; }
+    .drill-question { font-size: 21px; line-height: 1.35; font-weight: 700; text-align: center; margin: 27px 0 22px; letter-spacing: -.4px; }
+    .answer-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+    .answer-button { height: 73px; border-radius: 19px; border: 1px solid var(--line); background: var(--surface); font-size: 27px; font-weight: 550; font-variant-numeric: tabular-nums; }
+    .answer-button:hover { background: var(--soft); }
+    .drill-help { color: var(--muted); text-align: center; font-size: 12px; margin-top: 23px; line-height: 1.6; }
+    .feedback { border-radius: 22px; background: var(--soft); padding: 22px; margin-top: 24px; }
+    .feedback h3 { display: flex; align-items: center; gap: 8px; font-size: 19px; }
+    .feedback h3 svg { width: 20px; height: 20px; }
+    .feedback p { margin-top: 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+    .feedback + .primary { margin-top: 20px; }
+    .paused { text-align: center; padding: 100px 12px 20px; }
+    .paused > svg { width: 54px; height: 54px; margin: 0 auto 24px; }
+    .paused h2 { font-size: 28px; margin-bottom: 12px; }
+    .paused p { font-size: 14px; color: var(--muted); margin-bottom: 30px; }
+    .result-mark { width: 108px; height: 108px; background: var(--soft); border-radius: 50%; margin: 26px auto; display: grid; place-items: center; }
+    .result-mark svg { width: 48px; height: 48px; }
+    .result-title { font-size: 31px; letter-spacing: -.8px; text-align: center; line-height: 1.2; margin-bottom: 13px; }
+    .result-subtitle { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.6; margin-bottom: 26px; }
+    .result-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 26px; }
+    .metric { padding: 21px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; }
+    .metric svg { width: 20px; height: 20px; margin-bottom: 12px; }
+    .metric strong { display: block; font-size: 34px; letter-spacing: -1px; margin-bottom: 6px; }
+    .metric span { font-size: 12px; color: var(--muted); }
+    .progress-title { margin: 5px 0 25px; }
+    .progress-title .native-title { margin-top: 8px; font-size: 31px; }
+    .panel { border-radius: 23px; background: var(--surface); border: 1px solid var(--line); padding: 22px; margin-bottom: 18px; }
+    .panel h3 { font-size: 17px; letter-spacing: -.4px; }
+    .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin: 20px 0 15px; }
+    .day { text-align: center; color: var(--muted); font-size: 10px; }
+    .day div { width: 30px; height: 30px; margin: 0 auto 9px; background: var(--soft); border-radius: 50%; display: grid; place-items: center; font-size: 12px; }
+    .day.active div { background: var(--forest); color: var(--lime); }
+    .panel > p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .accuracy-chart { width: 100%; height: 120px; margin-top: 17px; margin-bottom: 7px; }
+    .skills { margin-top: 15px; }
+    .skill-row { display: flex; gap: 12px; align-items: center; margin-top: 20px; }
+    .skill-row svg { width: 20px; height: 20px; }
+    .skill-row > div { flex: 1; }
+    .skill-row strong { display: block; font-size: 12px; margin-bottom: 8px; }
+    .skill-track { background: var(--line); height: 4px; border-radius: 4px; }
+    .skill-track span { background: #688656; height: 100%; display: block; border-radius: 4px; }
+    .skill-score { font-size: 12px; color: var(--muted); }
+    .pro-content { padding: 5px 24px 170px; height: 786px; }
+    .pro-close { display: flex; justify-content: flex-end; margin-bottom: 5px; }
+    .pro-art { height: 146px; position: relative; margin-bottom: 16px; display: flex; align-items: center; justify-content: center; }
+    .pro-glow { width: 142px; height: 142px; background: var(--soft); border-radius: 50%; position: absolute; }
+    .pro-art .playing-card { position: absolute; width: 74px; height: 105px; }
+    .pro-art .back-card { transform: rotate(-15deg) translate(-28px, 0); background: #baca9f; border-color: #baca9f; }
+    .pro-art .front-card { transform: rotate(12deg) translate(23px, -3px); }
+    .pro-art .sparkle { font-size: 29px; position: absolute; color: #90a671; right: 75px; top: 11px; }
+    .pro-content .eyebrow { margin-bottom: 10px; font-size: 10px; color: #6f8854; }
+    .pro-content .native-title { font-size: 34px; margin-bottom: 12px; }
+    .pro-content .native-subtitle { line-height: 1.55; }
+    .benefits { margin-top: 23px; padding: 21px; border-radius: 24px; background: var(--surface); display: flex; flex-direction: column; gap: 22px; }
+    .benefit { display: flex; align-items: flex-start; gap: 13px; }
+    .benefit > svg { width: 22px; height: 22px; flex-shrink: 0; color: #557b48; }
+    .benefit strong { display: block; font-size: 14px; letter-spacing: -.1px; }
+    .benefit span { display: block; margin-top: 5px; font-size: 11px; line-height: 1.4; color: var(--muted); }
+    .pro-reassurance { font-size: 11px; line-height: 1.6; color: var(--muted); margin-top: 20px; display: flex; gap: 8px; }
+    .pro-reassurance svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .pro-footer { position: absolute; inset: auto 0 0; padding: 17px 24px 28px; background: var(--background); border-top: 1px solid var(--line); }
+    .pro-links { display: flex; justify-content: center; gap: 24px; font-size: 10px; color: var(--muted); margin-top: 10px; }
+    .pro-links button { min-height: 30px; padding: 0; }
+    .pro-footer > p { text-align: center; font-size: 9px; color: var(--muted); margin-top: 5px; }
+    .lesson-hero { display: flex; align-items: center; gap: 22px; margin: 8px 0 27px; }
+    .lesson-hero h2 { font-size: 25px; line-height: 1.25; letter-spacing: -.6px; flex: 1; }
+    .lesson-ring { width: 74px; height: 74px; border-radius: 50%; border: 6px solid var(--line); border-top-color: #617f4c; display: grid; place-items: center; font-size: 23px; font-weight: 700; }
+    .lesson-row { width: 100%; padding: 16px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); display: flex; gap: 12px; align-items: center; margin-bottom: 11px; text-align: left; }
+    .lesson-row .tile-symbol { width: 44px; height: 48px; flex-shrink: 0; }
+    .lesson-row strong { display: block; font-size: 13px; }
+    .lesson-row small { display: block; color: var(--muted); margin-top: 5px; font-size: 11px; }
+    .lesson-row > svg { width: 12px; height: 12px; margin-left: auto; color: var(--muted); }
+    .lesson-step { padding-top: 7px; }
+    .lesson-step .native-title { margin: 25px 0 19px; font-size: 31px; }
+    .lesson-step .native-subtitle { font-size: 16px; line-height: 1.7; }
+    .lesson-step .primary { margin-top: 28px; }
+    .lesson-examples { display: flex; justify-content: center; gap: 20px; border-radius: 25px; background: var(--forest); padding: 27px 16px; }
+    .lesson-examples > div { text-align: center; color: var(--lime); font-size: 18px; font-weight: 600; }
+    .lesson-examples p { margin-top: 13px; }
+    .table-preview { border-radius: 25px; background: var(--forest); padding: 29px 20px; margin-top: 20px; color: var(--lime); text-align: center; }
+    .table-preview .cards { display: flex; justify-content: center; gap: 9px; margin: 17px 0; }
+    .table-label { font-size: 9px; letter-spacing: 2px; }
+    .table-wordmark { font-size: 11px; letter-spacing: 2px; margin: 28px 0; opacity: .7; }
+    .table-actions { display: flex; gap: 10px; margin-top: 19px; }
+    .table-actions button { flex: 1; padding: 15px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); font-size: 13px; }
+    .table-actions button:nth-child(2) { background: var(--lime); }
+    .table-advice { padding: 18px; background: var(--soft); border-radius: 18px; margin-top: 17px; }
+    .table-advice h3 { font-size: 17px; }
+    .table-advice p { font-size: 12px; line-height: 1.6; margin-top: 8px; color: var(--muted); }
+    .preview-notice { margin: 22px 0 0; padding: 15px 19px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid #cdd7c3; font-size: 11px; line-height: 1.7; color: var(--muted); }
+    .preview-notice strong { font-weight: 600; color: var(--ink); }
+    .toast { position: fixed; z-index: 30; bottom: 22px; left: 50%; transform: translate(-50%, 25px); opacity: 0; max-width: min(520px, calc(100% - 32px)); padding: 15px 20px; border-radius: 15px; color: #f3f5e8; background: #213c2f; box-shadow: 0 8px 35px #14201733; font-size: 12px; line-height: 1.6; pointer-events: none; transition: opacity .2s, transform .2s; text-align: center; }
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+    body.dark { color-scheme: dark; --page:#0b1712; --background:#0e1e18; --surface:#192d24; --ink:#edf2e5; --muted:#afbea9; --line:#314335; --soft:#263d2d; --coral:#f0a592; }
+    body.dark .theme-toggle { background:#263d2d; }
+    body.dark .phone-caption { color:#93a486; }
+    body.dark .prototype-badge { border-color:#4e6347; }
+    body.dark .review-brand { color:#a3b98b; }
+    body.dark .progress-track span, body.dark .day.active div { background:#9bbd77; }
+    body.dark .day.active div { color:#152619; }
+    body.dark .preview-notice { border-color:#314335; }
+    @media (max-width: 1150px) {
+      .gallery { grid-template-columns: repeat(2, minmax(0, 345px)); justify-content: center; gap: 30px 45px; }
+      .review-header { max-width:735px; margin-left:auto; margin-right:auto; }
+      .review-shell { padding:32px 24px; }
+    }
+    @media (max-width: 650px) {
+      .review-shell { padding:27px 19px; }
+      .review-header { flex-direction:column; gap:17px; margin-bottom:27px; }
+      .review-title { font-size:30px; }
+      .review-actions { flex-direction:row; align-items:center; justify-content:space-between; width:100%; }
+      .prototype-badge { font-size:8px; }
+      .gallery { grid-template-columns:minmax(0, 340px); gap:34px; }
+      .screen-note { font-size:11px; }
+      .preview-notice { flex-direction:column; align-items:flex-start; gap:8px; padding-left:0; padding-right:0; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition:none !important; animation:none !important; } }
+  </style>
+</head>
+<body>
+  <main class="review-shell">
+    <header class="review-header">
+      <div>
+        <div class="review-brand">BLACKJACK STUDIO / iOS</div>
+        <h1 class="review-title">Designed for a sharper instinct.</h1>
+        <p class="review-subtitle">An interactive review of the native app’s visual direction. Try the tabs and the counting drill. The SwiftUI implementation is the source of truth.</p>
+      </div>
+      <div class="review-actions">
+        <span class="prototype-badge">DESIGN PROTOTYPE · NOT A DEVICE BUILD</span>
+        <button class="theme-toggle" id="theme-toggle" aria-pressed="false">☾ <span>Explore dark mode</span></button>
+      </div>
+    </header>
+    <section class="gallery" aria-label="iOS app design prototypes">
+      <article class="phone-column" data-default="train">
+        <div class="phone-caption"><strong>01 / TRAIN</strong><span>THE DAILY MOMENT</span></div>
+        <div class="device"><div class="screen-clip"><div class="screen" data-phone="0"></div></div></div>
+        <p class="screen-note">A clear next step. Focused sessions. No pressure to keep a streak.</p>
+      </article>
+      <article class="phone-column" data-default="drill">
+        <div class="phone-caption"><strong>02 / PRACTICE</strong><span>ONE CARD AT A TIME</span></div>
+        <div class="device"><div class="screen-clip"><div class="screen" data-phone="1"></div></div></div>
+        <p class="screen-note">Try a real simulated card-value question. This demo stays in your browser.</p>
+      </article>
+      <article class="phone-column" data-default="progress">
+        <div class="phone-caption"><strong>03 / PROGRESS</strong><span>SMALL, VISIBLE WINS</span></div>
+        <div class="device"><div class="screen-clip"><div class="screen" data-phone="2"></div></div></div>
+        <p class="screen-note">Illustrative practice data—not measured results or promises of winnings.</p>
+      </article>
+      <article class="phone-column" data-default="pro">
+        <div class="phone-caption"><strong>04 / STUDIO PRO</strong><span>ONE LIFETIME UNLOCK</span></div>
+        <div class="device"><div class="screen-clip"><div class="screen" data-phone="3"></div></div></div>
+        <p class="screen-note">The $19.99 price is an illustrative StoreKit test price. No purchase occurs here.</p>
+      </article>
+    </section>
+    <footer class="preview-notice">
+      <span><strong>A design review, not App Store screenshots.</strong> This HTML recreates the intended SwiftUI layout; it is not an iOS simulator capture.</span>
+      <span>Offline · Original assets · Simulated cards only</span>
+    </footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    const icons = {
+      grid: '<rect x="3" y="3" width="7" height="7" rx="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.8"/>',
+      book: '<path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4z"/><path d="M13 7a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2"/>',
+      spade: '<path d="M12 2c-2.5 4-9 7-9 12a5 5 0 0 0 9 3 5 5 0 0 0 9-3c0-5-6.5-8-9-12Z"/><path d="m12 17-3 5h6z"/>',
+      chart: '<path d="M4 3v17h17M7 14l4-5 4 3 6-7"/>',
+      arrow: '<path d="M4 12h15m-6-6 6 6-6 6"/>',
+      diagonal: '<path d="m6 18 12-12M6 6h12v12"/>',
+      clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      settings: '<path d="M4 6h4m5 0h7M4 12h10m5 0h1M4 18h2m5 0h9"/><circle cx="10" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/>',
+      leaf: '<path d="M20 4C7 1 1 13 8 18c7 5 14-6 12-14Z"/><path d="M4 22 16 9"/>',
+      pair: '<rect x="3" y="7" width="11" height="14" rx="2"/><path d="M8 7V3h13v14h-7"/>',
+      count: '<path d="M4 7h8M8 3v8M14 17h7M6 21 18 3"/>',
+      stack: '<rect x="5" y="7" width="15" height="14" rx="2"/><path d="M3 16V4h14M7 1h14"/>',
+      divide: '<path d="M4 12h16"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>',
+      decks: '<path d="m3 6 9-4 9 4-9 4-9-4Zm0 6 9 4 9-4M3 18l9 4 9-4"/>',
+      lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/>',
+      close: '<path d="m6 6 12 12M18 6 6 18"/>',
+      pause: '<path d="M8 5v14M16 5v14"/>',
+      play: '<path d="m8 4 12 8-12 8z"/>',
+      check: '<path d="m5 12 4 4L19 6"/>',
+      circlecheck: '<circle cx="12" cy="12" r="9"/><path d="m7 12 3 3 7-7"/>',
+      shield: '<path d="m12 2 8 3v7c0 5-8 10-8 10S4 17 4 12V5z"/><path d="m8 11 3 3 5-5"/>',
+      target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+      chevron: '<path d="m9 5 7 7-7 7"/>',
+      sparkle: '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5z"/>',
+      wifi: '<path d="M2 8a17 17 0 0 1 20 0M5 12a12 12 0 0 1 14 0M9 16a5 5 0 0 1 6 0M12 20h.01"/>',
+      signal: '<path d="M4 19v-3M9 19v-7M14 19V8M19 19V4"/>'
+    };
+    const icon = (name, size = 20) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.sparkle}</svg>`;
+    const card = (rank, suit, small = false) => `<div class="playing-card ${small ? 'small' : ''} ${['♥','♦'].includes(suit) ? 'red' : ''}" role="img" aria-label="${rank} of ${{'♠':'spades','♥':'hearts','♣':'clubs','♦':'diamonds'}[suit]}"><span class="card-corner">${rank}<i>${suit}</i></span><span class="card-suit">${suit}</span><span class="card-corner bottom">${rank}<i>${suit}</i></span></div>`;
+    const status = () => `<div class="status-bar" aria-hidden="true"><span>9:41</span><div class="island"></div><div class="status-icons">${icon('signal')}${icon('wifi')}<div class="battery"><span></span></div></div></div>`;
+    const tabs = page => `<nav class="tab-bar" aria-label="Prototype navigation">${[['train','grid','Train'],['learn','book','Learn'],['table','spade','Table'],['progress','chart','Progress']].map(([key, symbol, label]) => `<button class="tab-button ${page === key ? 'active' : ''}" data-page="${key}" ${page === key ? 'aria-current="page"' : ''}>${icon(symbol)}<span>${label}</span></button>`).join('')}</nav>`;
+    const drillKinds = [['Card values','spade','1 min',false],['Pair cancellation','pair','1 min',true],['Running count','count','2 min',false],['Shoe stamina','stack','3 min',true],['True count','divide','2 min',true],['Deck estimation','decks','2 min',true]];
+    const prompts = [['5','♠',1],['K','♥',-1],['8','♣',0],['3','♦',1],['A','♠',-1],['9','♥',0],['6','♣',1],['Q','♦',-1],['7','♠',0],['2','♥',1],['10','♣',-1],['4','♦',1],['J','♠',-1],['8','♦',0],['6','♥',1]];
+    const phones = [...document.querySelectorAll('.screen')].map((element, index) => ({ element, index, page: element.closest('.phone-column').dataset.default, prompt: 0, correct: 0, selected: null, paused: false }));
+    let toastTimer;
+    function notify(message) {
+      const toast = document.querySelector('#toast');
+      toast.textContent = message; toast.classList.add('visible');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('visible'), 4300);
+    }
+    function trainMarkup() {
+      return `<div class="top-heading"><div><div class="eyebrow">BLACKJACK STUDIO</div><h2 class="native-title">Make it<br>second nature.</h2></div><button class="round-button" data-info="Settings are implemented in the native app, including reminders, haptics, and data controls." aria-label="Preview settings information">${icon('settings')}</button></div>
+      <section class="session-hero"><div class="eyebrow">YOUR NEXT SESSION</div><h2>Card values</h2><p>Make +1, 0, and −1 automatic.</p><div class="hero-card">${card('5','♠',true)}</div><div class="session-meta"><span>${icon('clock',12)} 1 min</span><span>A good place to begin</span></div><button class="primary spread" data-page="drill">Start session ${icon('arrow')}</button></section>
+      <section class="moment"><div class="moment-ring">${icon('leaf')}</div><div><strong>Your daily moment.</strong><p>3 of 5 minutes practiced</p></div><span class="moment-total">18</span></section>
+      <h3 class="section-title">Find your focus</h3><p class="section-subtitle">Short sessions. Lasting skill.</p><div class="drill-grid">${drillKinds.map(([title,symbol,duration,locked]) => `<button class="drill-tile" data-page="${locked ? 'pro' : 'drill'}"><div class="tile-top"><span class="tile-symbol">${icon(symbol)}</span>${icon(locked ? 'lock' : 'diagonal')}</div><strong>${title}</strong><small>${duration}</small></button>`).join('')}</div>`;
+    }
+    function drillMarkup(phone) {
+      const nav = `<div class="nav-heading"><button class="icon-button" data-page="train" aria-label="Close prototype drill">${icon('close')}</button><h2>Card values</h2><button class="icon-button" data-action="pause" aria-label="${phone.paused ? 'Resume' : 'Pause'} drill">${icon(phone.paused ? 'play' : 'pause')}</button></div>`;
+      if (phone.paused) return nav + `<div class="paused">${icon('pause')}<h2>Take your time.</h2><p>The practice is paused.</p><button class="primary" data-action="pause">Resume ${icon('play')}</button></div>`;
+      if (phone.prompt >= prompts.length) return nav + `<div class="result-mark">${icon('circlecheck')}</div><h2 class="result-title">${phone.correct === prompts.length ? 'A clean count.' : 'One session sharper.'}</h2><p class="result-subtitle">${phone.correct >= 13 ? 'Accurate and consistent. Try a little more pace next time.' : 'Slow the pace. Accuracy comes before speed.'}</p><div class="result-metrics"><div class="metric"><strong>${Math.round(phone.correct/prompts.length*100)}%</strong><span>Accuracy</span></div><div class="metric"><strong>${phone.correct}/${prompts.length}</strong><span>Correct</span></div></div><button class="primary" data-action="restart">Practice again ${icon('arrow')}</button><p class="drill-help">This design-demo result is not saved to the iOS app.</p>`;
+      const [rank,suit,value] = prompts[phone.prompt];
+      const feedback = phone.selected !== null;
+      return nav + `<div class="drill-meta"><span>${phone.prompt + 1} of 15</span><span>${phone.correct} correct</span></div><div class="progress-track"><span style="width:${(phone.prompt + Number(feedback))/15*100}%"></span></div><div class="drill-table">${card(rank,suit)}</div>${!feedback ? `<h3 class="drill-question">What’s this card worth?</h3><div class="answer-row">${[-1,0,1].map(answer => `<button class="answer-button" data-answer="${answer}" aria-label="Answer ${answer}">${answer > 0 ? '+' : answer < 0 ? '−' : ''}${Math.abs(answer)}</button>`).join('')}</div><p class="drill-help">2–6: +1 &nbsp;·&nbsp; 7–9: 0 &nbsp;·&nbsp; 10–A: −1</p>` : `<section class="feedback" role="status"><h3>${icon(phone.selected === value ? 'circlecheck' : 'sparkle')}${phone.selected === value ? 'Right on.' : `The value is ${value > 0 ? '+' : ''}${value}.`}</h3><p>${rank} is worth ${value > 0 ? '+' : ''}${value} in Hi-Lo.</p></section><button class="primary" data-action="next">${phone.prompt === 14 ? 'See results' : 'Next'} ${icon('arrow')}</button>`}`;
+    }
+    function progressMarkup() {
+      return `<div class="nav-heading"><span></span><h2>Progress</h2><button class="icon-button" data-info="Progress stays on the device. Native settings include export and deletion." aria-label="Preview progress settings">${icon('settings')}</button></div><div class="progress-title"><div class="eyebrow">SMALL STEPS. REAL PROGRESS.</div><h2 class="native-title">See yourself improve.</h2></div><div class="result-metrics"><div class="metric">${icon('target')}<strong>92%</strong><span>Accuracy</span></div><div class="metric">${icon('stack')}<strong>18</strong><span>Sessions</span></div></div>
+      <section class="panel"><h3>A week of practice</h3><div class="week">${['M','T','W','T','F','S','S'].map((day,index) => `<div class="day ${[0,1,3,4,6].includes(index) ? 'active' : ''}"><div>${[0,1,3,4,6].includes(index) ? '✓' : '−'}</div>${day}</div>`).join('')}</div><p>Rest days are part of the rhythm.</p></section>
+      <section class="panel"><h3>Accuracy over time</h3><svg class="accuracy-chart" viewBox="0 0 300 120" role="img" aria-label="Illustrative accuracy chart, not user data"><defs><linearGradient id="chart-fill-${Math.random().toString(16).slice(2)}"><stop stop-color="#b8ce93" stop-opacity=".25"/></linearGradient></defs><path d="M0 20H300M0 60H300M0 100H300" stroke="var(--line)" stroke-dasharray="3 5"/><path d="m2 91 27-12 27 8 27-29 27 9 27-21 27 8 27-22 27 10 27-18 27 6 27-13" fill="none" stroke="#78985b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="299" cy="17" r="4" fill="#78985b"/></svg><p>Aim for accuracy before speed.</p></section>
+      <section class="panel skills"><h3>Your skills</h3>${[['Card values','spade',100],['Running count','count',92],['True count','divide',84]].map(([title,symbol,value]) => `<div class="skill-row">${icon(symbol)}<div><strong>${title}</strong><div class="skill-track"><span style="width:${value}%"></span></div></div><span class="skill-score">${value}%</span></div>`).join('')}</section>`;
+    }
+    function proMarkup() {
+      return `<div class="pro-close"><button class="round-button" data-page="train" aria-label="Close upgrade prototype">${icon('close')}</button></div><div class="pro-art"><div class="pro-glow"></div><div class="playing-card back-card"><span class="card-suit">♠</span></div><div class="front-card">${card('A','♠')}</div><span class="sparkle">✧</span></div><div class="eyebrow">✧ STUDIO PRO</div><h2 class="native-title">Make it<br>second nature.</h2><p class="native-subtitle">Your complete counting toolkit.<br>One payment. No subscription.</p><section class="benefits">${[['pair','Every training mode','Pairs, full decks, and true counts.'],['book','The complete learning path','Build each skill in the right order.'],['spade','A table that grows with you','Adjust the rules. Put your skills to work.']].map(([symbol,title,detail]) => `<div class="benefit">${icon(symbol)}<div><strong>${title}</strong><span>${detail}</span></div></div>`).join('')}</section><p class="pro-reassurance">${icon('shield')}Free training stays free. Your progress comes with you.</p>`;
+    }
+    const lessonTitles = [['Three small numbers','Learn the Hi-Lo values.','spade',false],['Let pairs disappear','Cancel opposite values.','pair',false],['Carry the count','Keep one total in your head.','count',true],['Build count stamina','Stay accurate through a shoe.','stack',true],['Read the cards left','Estimate decks remaining.','decks',true],['Put the count in context','Turn a running count into a true count.','divide',true],['Separate skill from outcome','Build disciplined decisions.','target',true],['Know the boundaries','Keep training separate from live play.','shield',false]];
+    function learnMarkup() {
+      return `<div class="nav-heading"><span></span><h2>Learn</h2><span></span></div><div class="lesson-hero"><h2>One skill.<br>A strong foundation.</h2><div class="lesson-ring">2/8</div></div>${lessonTitles.map(([title,subtitle,symbol,pro],index) => `<button class="lesson-row" data-page="${pro ? 'pro' : 'lesson'}"><span class="tile-symbol">${icon(index < 2 ? 'check' : symbol)}</span><span><strong>${String(index+1).padStart(2,'0')} ${title}</strong><small>${subtitle}</small><small>3 min ${pro ? '· PRO' : ''}</small></span>${icon(pro ? 'lock' : 'chevron')}</button>`).join('')}`;
+    }
+    function lessonMarkup() {
+      return `<div class="nav-heading"><button class="icon-button" data-page="learn" aria-label="Return to lessons">${icon('close')}</button><h2>Three small numbers</h2><span></span></div><div class="lesson-step"><div class="eyebrow">THE IDEA · 1 OF 3</div><div class="lesson-examples" style="margin-top:23px">${[['5','♥','+1'],['8','♣','0'],['K','♠','−1']].map(([rank,suit,value])=>`<div>${card(rank,suit,true)}<p>${value}</p></div>`).join('')}</div><h2 class="native-title">Give each card<br>a value.</h2><p class="native-subtitle">In Hi-Lo, low cards add one. Middle cards add nothing. High cards subtract one.</p><button class="primary" data-page="drill">Try a card ${icon('arrow')}</button><p class="drill-help">The native lesson includes three steps and three interactive checks.</p></div>`;
+    }
+    function tableMarkup() {
+      return `<div class="nav-heading"><span></span><h2>The practice table</h2><button class="icon-button" data-info="The native app includes real simulated gameplay, splits, doubles, surrender, and configurable Pro rules." aria-label="Preview table rules">${icon('settings')}</button></div><div class="eyebrow">SIMULATED PRACTICE</div><section class="table-preview"><div class="table-label">DEALER · 6 + ?</div><div class="cards">${card('6','♦',true)}<div class="playing-card small" style="background:#80986b;color:#edf3d3;border-color:#dfe8c8"><span class="card-suit">♠</span></div></div><div class="table-wordmark">BLACKJACK PAYS 3 TO 2</div><div class="cards">${card('10','♠')}${card('8','♣')}</div><div class="table-label">YOUR HAND · 18</div></section><div class="table-actions"><button data-info="This screen is a design preview. Full blackjack gameplay is implemented in the SwiftUI app.">+ Hit</button><button data-info="Stand is the basic-strategy choice for hard 18 against a dealer 6.">− Stand</button><button data-info="In the native app, legal moves depend on the hand, bankroll, and table rules.">↗ Double</button></div><section class="table-advice"><h3>Stand is the move.</h3><p>Stand on hard 18 against the dealer’s 6.</p></section><p class="drill-help">No real money. Simulated cards only.</p>`;
+    }
+    function render(phone) {
+      const noTab = ['drill','pro','lesson'].includes(phone.page);
+      let content = phone.page === 'train' ? trainMarkup() : phone.page === 'drill' ? drillMarkup(phone) : phone.page === 'progress' ? progressMarkup() : phone.page === 'pro' ? proMarkup() : phone.page === 'learn' ? learnMarkup() : phone.page === 'lesson' ? lessonMarkup() : tableMarkup();
+      phone.element.innerHTML = status() + `<div class="screen-content ${noTab ? 'no-tab' : ''} ${phone.page === 'pro' ? 'pro-content' : ''}">${content}</div>` + (!noTab ? tabs(phone.page) : '') + (phone.page === 'pro' ? `<div class="pro-footer"><button class="primary dark" data-info="Design preview only: no purchase is made. The iOS app uses Apple’s localized StoreKit price and verified purchases.">Unlock Pro · $19.99 ${icon('arrow')}</button><div class="pro-links"><button data-info="Native Restore Purchases uses Apple’s StoreKit. This design preview has no transactions.">Restore Purchases</button><button data-info="The app stores practice records locally and uses Apple for purchases. No ads or tracking SDKs.">Privacy</button><button data-info="Educational simulation only. Do not use during live casino play. Local laws and venue policies vary.">Terms</button></div><p>Purchase charged to your Apple Account.</p></div>` : '') + '<div class="home-indicator" aria-hidden="true"></div>';
+      phone.element.querySelectorAll('[data-page]').forEach(button => button.addEventListener('click', () => {
+        phone.page = button.dataset.page;
+        if (phone.page === 'drill' && phone.prompt >= prompts.length) { phone.prompt = 0; phone.correct = 0; phone.selected = null; }
+        render(phone);
+      }));
+      phone.element.querySelectorAll('[data-info]').forEach(button => button.addEventListener('click', () => notify(button.dataset.info)));
+      phone.element.querySelectorAll('[data-answer]').forEach(button => button.addEventListener('click', () => {
+        if (phone.selected !== null || phone.paused) return;
+        phone.selected = Number(button.dataset.answer);
+        if (phone.selected === prompts[phone.prompt][2]) phone.correct += 1;
+        render(phone);
+      }));
+      phone.element.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => {
+        if (button.dataset.action === 'next') { phone.prompt += 1; phone.selected = null; }
+        if (button.dataset.action === 'pause') phone.paused = !phone.paused;
+        if (button.dataset.action === 'restart') { phone.prompt = 0; phone.correct = 0; phone.selected = null; phone.paused = false; }
+        render(phone);
+      }));
+      resize();
+    }
+    function resize() {
+      phones.forEach(phone => {
+        phone.element.style.transform = `scale(${phone.element.parentElement.clientWidth / 390})`;
+      });
+    }
+    phones.forEach(render);
+    window.addEventListener('resize', resize);
+    document.querySelector('#theme-toggle').addEventListener('click', event => {
+      const isDark = document.body.classList.toggle('dark');
+      event.currentTarget.setAttribute('aria-pressed', String(isDark));
+      event.currentTarget.querySelector('span').textContent = isDark ? 'Explore light mode' : 'Explore dark mode';
+    });
+  </script>
+</body>
+</html>

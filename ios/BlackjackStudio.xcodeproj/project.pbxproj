@@ -1,0 +1,709 @@
+// !$*UTF8*$!
+{
+	"archiveVersion" = 1;
+	"classes" = {
+
+	};
+	"objectVersion" = 56;
+	"objects" = {
+		"088D963674D20B61BE751F1A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D38E98AF68ED76ED926715A1";
+		};
+		"136BC805ECCE2E987788E65D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5A567980F11B8CA0BA90E843";
+		};
+		"18C4F357E71714F74CA7378F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "02EB14230671213CDD0E546F";
+		};
+		"241FE4D7421BCA2349FFC7C2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E57BF6AC248C4C6BA403F8CA";
+		};
+		"26B09049690875817133FCB1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1F0AFB148BBC3B1F47B8E37A";
+		};
+		"2B1E860FAE8E37BFC674DE53" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BF8FF3244D0C548718B33E0E";
+		};
+		"33CE8B60630B33D28FB133D8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0FD8388A6E2E96422BC290A2";
+		};
+		"4260188BE3B1DFF0A3EECD2F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "936C11FC495CFA447EAB6988";
+		};
+		"5834BF510F8CE1E1EA7AC729" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "6B651279255A9547657B640A";
+		};
+		"5E423B58E6CAEF9746575BA1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3B1277C911F5CBF79835F613";
+		};
+		"5F5DA35580C13B100A65A6E2" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "499EC45BD09071C1240BF194";
+		};
+		"71CBBEB086F0C05E209F09DC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E48429487CBDA50C05B05149";
+		};
+		"9E18FF8D1759A9EA32D7A0A1" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "4C84B52B13CBC8391299DCB2";
+		};
+		"A7945E57C5EDC871A1C878E9" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "67A49AF4882E6416070362F8";
+		};
+		"BB62093946E102E6545C6BBE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C3C7795925BF1FF888C602A0";
+		};
+		"C07C22E8F116FE30E1FE4C66" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "5950F5CB72AF03EEE52749D3";
+		};
+		"C1A4B836D4CCD405ED9A6B67" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "AA6DEAFCDE369F9A566F20A0";
+		};
+		"CB6B2C971C83F932972FD27F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "8F25D53296A129D6C86E2A6F";
+		};
+		"D0876B3DD13230D9E9B4C59E" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3B8649FB816921FD07E2F8C8";
+		};
+		"E1ED1EA169F5D73336CE4E07" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "45A15C74E91698110DEDE730";
+		};
+		"E66CB028C1FAAA193B638564" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "1B7ABED0266E4D109D2F1D4E";
+		};
+		"EDBA65E98094953DD48ADE63" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "3C930B48ACE18AD2452E936F";
+		};
+		"F86D8580E414539ED5B66CD5" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7438D264B4DA5E8E45B3D5D7";
+		};
+		"E7B1F8C2FBFAEAA5A867537D" = {
+			"isa" = "PBXContainerItemProxy";
+			"containerPortal" = "13FAE31244D209EABDC83B78";
+			"proxyType" = 1;
+			"remoteGlobalIDString" = "9CBEF8FB05E88548C0B86B46";
+			"remoteInfo" = "BlackjackStudio";
+		};
+		"020CBA60B6ABA69221CA39F9" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/Release.xcconfig";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Release.xcconfig";
+		};
+		"02EB14230671213CDD0E546F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text";
+			"path" = "BlackjackStudio/Resources/BlackjackStudio.storekit";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "BlackjackStudio.storekit";
+		};
+		"0FD8388A6E2E96422BC290A2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xml";
+			"path" = "BlackjackStudio/Resources/PrivacyInfo.xcprivacy";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "PrivacyInfo.xcprivacy";
+		};
+		"1AFCB482548B1E374F316B10" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder";
+			"path" = "Packages/BlackjackCore";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "BlackjackCore";
+		};
+		"1B7ABED0266E4D109D2F1D4E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Commerce/PurchaseStore.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "PurchaseStore.swift";
+		};
+		"1F0AFB148BBC3B1F47B8E37A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/SettingsScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "SettingsScreen.swift";
+		};
+		"3B1277C911F5CBF79835F613" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Design/StudioTheme.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "StudioTheme.swift";
+		};
+		"3B8649FB816921FD07E2F8C8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Commerce/CommerceLegalView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "CommerceLegalView.swift";
+		};
+		"3C930B48ACE18AD2452E936F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/ProgressScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "ProgressScreen.swift";
+		};
+		"4030F39AFFB267D99A5E7074" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.application";
+			"includeInIndex" = 0;
+			"path" = "BlackjackStudio.app";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"45A15C74E91698110DEDE730" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudioUITests/PurchaseFlowTests.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "PurchaseFlowTests.swift";
+		};
+		"4C84B52B13CBC8391299DCB2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudioUITests/AppFlowTests.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "AppFlowTests.swift";
+		};
+		"56FC5310A3FCB25022B12A0C" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.plist.xml";
+			"path" = "BlackjackStudio/Resources/Info.plist";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Info.plist";
+		};
+		"5950F5CB72AF03EEE52749D3" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Training/TrainingStyle.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "TrainingStyle.swift";
+		};
+		"5A567980F11B8CA0BA90E843" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/OnboardingScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "OnboardingScreen.swift";
+		};
+		"5E52C332B8BD1473C9608369" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/Base.xcconfig";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Base.xcconfig";
+		};
+		"67A49AF4882E6416070362F8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/StrategyReferenceScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "StrategyReferenceScreen.swift";
+		};
+		"6E2D0DE3845AD95B7B4C7119" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder";
+			"path" = "Packages/TrainingCore";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "TrainingCore";
+		};
+		"7438D264B4DA5E8E45B3D5D7" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Training/LearnScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "LearnScreen.swift";
+		};
+		"8BD84A03E652B82E109385F0" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.cfbundle";
+			"includeInIndex" = 0;
+			"path" = "BlackjackStudioUITests.xctest";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"8F25D53296A129D6C86E2A6F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/App/BlackjackStudioApp.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "BlackjackStudioApp.swift";
+		};
+		"936C11FC495CFA447EAB6988" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Commerce/PaywallView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "PaywallView.swift";
+		};
+		"BF8FF3244D0C548718B33E0E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder.assetcatalog";
+			"path" = "BlackjackStudio/Resources/Assets.xcassets";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Assets.xcassets";
+		};
+		"C3A8345DD3015A0A8128B639" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/Publisher.xcconfig";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Publisher.xcconfig";
+		};
+		"C3C7795925BF1FF888C602A0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/TrainScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "TrainScreen.swift";
+		};
+		"CD629CB1876FDBABD70A4A4D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.xcconfig";
+			"path" = "Config/Debug.xcconfig";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "Debug.xcconfig";
+		};
+		"D38E98AF68ED76ED926715A1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/App/StudioModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "StudioModel.swift";
+		};
+		"D86E80801FD0321B1DEDE1BE" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder";
+			"path" = "Packages/StudioCore";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "StudioCore";
+		};
+		"E48429487CBDA50C05B05149" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Training/DrillSessionView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "DrillSessionView.swift";
+		};
+		"E57BF6AC248C4C6BA403F8CA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/TableScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "TableScreen.swift";
+		};
+		"E0A463497CB7286301A29565" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"5F5DA35580C13B100A65A6E2",
+				"5834BF510F8CE1E1EA7AC729",
+				"C1A4B836D4CCD405ED9A6B67",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"E8192A6C020A15BAE98FB655" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = ();
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"14CAE8F3C0F1E2745884CAB8" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"BF8FF3244D0C548718B33E0E",
+				"02EB14230671213CDD0E546F",
+				"56FC5310A3FCB25022B12A0C",
+				"0FD8388A6E2E96422BC290A2",
+			);
+			"name" = "Resources";
+			"sourceTree" = "<group>";
+		};
+		"174C8D929F518CF550510464" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"8F25D53296A129D6C86E2A6F",
+				"D38E98AF68ED76ED926715A1",
+			);
+			"name" = "App";
+			"sourceTree" = "<group>";
+		};
+		"1804BEC8AB482405F1296176" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"4030F39AFFB267D99A5E7074",
+				"8BD84A03E652B82E109385F0",
+			);
+			"name" = "Products";
+			"sourceTree" = "<group>";
+		};
+		"1F9019AAAF4BBE68D2758D25" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"5E52C332B8BD1473C9608369",
+				"CD629CB1876FDBABD70A4A4D",
+				"020CBA60B6ABA69221CA39F9",
+				"C3A8345DD3015A0A8128B639",
+			);
+			"name" = "Config";
+			"sourceTree" = "<group>";
+		};
+		"2A7D6403BAAA45C2874A2260" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"1AFCB482548B1E374F316B10",
+				"6E2D0DE3845AD95B7B4C7119",
+				"D86E80801FD0321B1DEDE1BE",
+			);
+			"name" = "Packages";
+			"sourceTree" = "<group>";
+		};
+		"399C0B2A39DA059405ED3C10" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"5A567980F11B8CA0BA90E843",
+				"3C930B48ACE18AD2452E936F",
+				"1F0AFB148BBC3B1F47B8E37A",
+				"67A49AF4882E6416070362F8",
+				"E57BF6AC248C4C6BA403F8CA",
+				"C3C7795925BF1FF888C602A0",
+			);
+			"name" = "Features";
+			"sourceTree" = "<group>";
+		};
+		"4CCD97CE3D223046B80A3FEE" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"D48C3ED76975E5CC9B9F1FFE",
+				"CC9814D5703A8A9B8370E3C6",
+				"2A7D6403BAAA45C2874A2260",
+				"1F9019AAAF4BBE68D2758D25",
+				"1804BEC8AB482405F1296176",
+			);
+			"sourceTree" = "<group>";
+		};
+		"6E364DD56770067833568CDE" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"3B8649FB816921FD07E2F8C8",
+				"936C11FC495CFA447EAB6988",
+				"1B7ABED0266E4D109D2F1D4E",
+			);
+			"name" = "Commerce";
+			"sourceTree" = "<group>";
+		};
+		"A413A5049A88063707B2AEA6" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"3B1277C911F5CBF79835F613",
+			);
+			"name" = "Design";
+			"sourceTree" = "<group>";
+		};
+		"CC9814D5703A8A9B8370E3C6" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"4C84B52B13CBC8391299DCB2",
+				"45A15C74E91698110DEDE730",
+			);
+			"name" = "BlackjackStudioUITests";
+			"sourceTree" = "<group>";
+		};
+		"CD343471A07E842CBF10268F" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"E48429487CBDA50C05B05149",
+				"7438D264B4DA5E8E45B3D5D7",
+				"5950F5CB72AF03EEE52749D3",
+			);
+			"name" = "Training";
+			"sourceTree" = "<group>";
+		};
+		"D48C3ED76975E5CC9B9F1FFE" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"174C8D929F518CF550510464",
+				"6E364DD56770067833568CDE",
+				"A413A5049A88063707B2AEA6",
+				"399C0B2A39DA059405ED3C10",
+				"14CAE8F3C0F1E2745884CAB8",
+				"CD343471A07E842CBF10268F",
+			);
+			"name" = "BlackjackStudio";
+			"sourceTree" = "<group>";
+		};
+		"54D16D069A1A3FA3AC26D324" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "B9B0AFAA4E4507B3FE33E689";
+			"buildPhases" = (
+				"939A804D1F6FA92080CFA50D",
+				"E8192A6C020A15BAE98FB655",
+				"ED5BFB07355026C011F160B3",
+			);
+			"buildRules" = ();
+			"dependencies" = (
+				"D8607045D8CFA3E10BD371BE",
+			);
+			"name" = "BlackjackStudioUITests";
+			"packageProductDependencies" = ();
+			"productName" = "BlackjackStudioUITests";
+			"productReference" = "8BD84A03E652B82E109385F0";
+			"productType" = "com.apple.product-type.bundle.ui-testing";
+		};
+		"9CBEF8FB05E88548C0B86B46" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "7C36EAD7BED3A20ADBBCCF28";
+			"buildPhases" = (
+				"C6CDCF36038AE7C304922BC3",
+				"E0A463497CB7286301A29565",
+				"636AD6E780675ED1AE4ED0B6",
+			);
+			"buildRules" = ();
+			"dependencies" = ();
+			"name" = "BlackjackStudio";
+			"packageProductDependencies" = (
+				"499EC45BD09071C1240BF194",
+				"6B651279255A9547657B640A",
+				"AA6DEAFCDE369F9A566F20A0",
+			);
+			"productName" = "BlackjackStudio";
+			"productReference" = "4030F39AFFB267D99A5E7074";
+			"productType" = "com.apple.product-type.application";
+		};
+		"13FAE31244D209EABDC83B78" = {
+			"isa" = "PBXProject";
+			"attributes" = {
+				"BuildIndependentTargetsInParallel" = "YES";
+				"LastUpgradeCheck" = "1600";
+				"TargetAttributes" = {
+					"9CBEF8FB05E88548C0B86B46" = {
+						"CreatedOnToolsVersion" = "16.0";
+						"SystemCapabilities" = {
+							"com.apple.InAppPurchase" = {
+								"enabled" = 1;
+							};
+						};
+					};
+					"54D16D069A1A3FA3AC26D324" = {
+						"CreatedOnToolsVersion" = "16.0";
+						"TestTargetID" = "9CBEF8FB05E88548C0B86B46";
+					};
+				};
+			};
+			"buildConfigurationList" = "0CE8B1639076B9970A4EFA37";
+			"compatibilityVersion" = "Xcode 14.0";
+			"developmentRegion" = "en";
+			"hasScannedForEncodings" = 0;
+			"knownRegions" = (
+				"en",
+				"Base",
+			);
+			"mainGroup" = "4CCD97CE3D223046B80A3FEE";
+			"packageReferences" = (
+				"2C7C466F1ED6FDE2A66F5609",
+				"E243601A193B9A2CC96156A7",
+				"40EA9C00F488CB050D8F9FD4",
+			);
+			"productRefGroup" = "1804BEC8AB482405F1296176";
+			"projectDirPath" = "";
+			"projectRoot" = "";
+			"targets" = (
+				"9CBEF8FB05E88548C0B86B46",
+				"54D16D069A1A3FA3AC26D324",
+			);
+		};
+		"636AD6E780675ED1AE4ED0B6" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"2B1E860FAE8E37BFC674DE53",
+				"33CE8B60630B33D28FB133D8",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"ED5BFB07355026C011F160B3" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"18C4F357E71714F74CA7378F",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"939A804D1F6FA92080CFA50D" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"9E18FF8D1759A9EA32D7A0A1",
+				"E1ED1EA169F5D73336CE4E07",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"C6CDCF36038AE7C304922BC3" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = 2147483647;
+			"files" = (
+				"CB6B2C971C83F932972FD27F",
+				"088D963674D20B61BE751F1A",
+				"D0876B3DD13230D9E9B4C59E",
+				"4260188BE3B1DFF0A3EECD2F",
+				"E66CB028C1FAAA193B638564",
+				"5E423B58E6CAEF9746575BA1",
+				"136BC805ECCE2E987788E65D",
+				"EDBA65E98094953DD48ADE63",
+				"26B09049690875817133FCB1",
+				"A7945E57C5EDC871A1C878E9",
+				"241FE4D7421BCA2349FFC7C2",
+				"BB62093946E102E6545C6BBE",
+				"71CBBEB086F0C05E209F09DC",
+				"F86D8580E414539ED5B66CD5",
+				"C07C22E8F116FE30E1FE4C66",
+			);
+			"runOnlyForDeploymentPostprocessing" = 0;
+		};
+		"D8607045D8CFA3E10BD371BE" = {
+			"isa" = "PBXTargetDependency";
+			"target" = "9CBEF8FB05E88548C0B86B46";
+			"targetProxy" = "E7B1F8C2FBFAEAA5A867537D";
+		};
+		"827126904D6723557217AA48" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "CD629CB1876FDBABD70A4A4D";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(STUDIO_BUNDLE_IDENTIFIER).uitests";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"TEST_TARGET_NAME" = "BlackjackStudio";
+				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+			};
+			"name" = "Debug";
+		};
+		"87FEC2ADD6E636E21307E449" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "CD629CB1876FDBABD70A4A4D";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"INFOPLIST_FILE" = "BlackjackStudio/Resources/Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+			};
+			"name" = "Debug";
+		};
+		"A0FF8B005374524F9EEDEF89" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "020CBA60B6ABA69221CA39F9";
+			"buildSettings" = {
+
+			};
+			"name" = "Release";
+		};
+		"C265A1956B7C17B1A1839116" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "020CBA60B6ABA69221CA39F9";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"PRODUCT_BUNDLE_IDENTIFIER" = "$(STUDIO_BUNDLE_IDENTIFIER).uitests";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"TEST_TARGET_NAME" = "BlackjackStudio";
+				"SWIFT_EMIT_LOC_STRINGS" = "NO";
+			};
+			"name" = "Release";
+		};
+		"C5D3F0100852E7AB7A61770E" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "CD629CB1876FDBABD70A4A4D";
+			"buildSettings" = {
+
+			};
+			"name" = "Debug";
+		};
+		"D09DB02B70E9416B4775955F" = {
+			"isa" = "XCBuildConfiguration";
+			"baseConfigurationReference" = "020CBA60B6ABA69221CA39F9";
+			"buildSettings" = {
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"INFOPLIST_FILE" = "BlackjackStudio/Resources/Info.plist";
+				"GENERATE_INFOPLIST_FILE" = "NO";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
+			};
+			"name" = "Release";
+		};
+		"0CE8B1639076B9970A4EFA37" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"C5D3F0100852E7AB7A61770E",
+				"A0FF8B005374524F9EEDEF89",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"7C36EAD7BED3A20ADBBCCF28" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"87FEC2ADD6E636E21307E449",
+				"D09DB02B70E9416B4775955F",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"B9B0AFAA4E4507B3FE33E689" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"827126904D6723557217AA48",
+				"C265A1956B7C17B1A1839116",
+			);
+			"defaultConfigurationIsVisible" = 0;
+			"defaultConfigurationName" = "Release";
+		};
+		"2C7C466F1ED6FDE2A66F5609" = {
+			"isa" = "XCLocalSwiftPackageReference";
+			"relativePath" = "Packages/BlackjackCore";
+		};
+		"40EA9C00F488CB050D8F9FD4" = {
+			"isa" = "XCLocalSwiftPackageReference";
+			"relativePath" = "Packages/StudioCore";
+		};
+		"E243601A193B9A2CC96156A7" = {
+			"isa" = "XCLocalSwiftPackageReference";
+			"relativePath" = "Packages/TrainingCore";
+		};
+		"499EC45BD09071C1240BF194" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "2C7C466F1ED6FDE2A66F5609";
+			"productName" = "BlackjackCore";
+		};
+		"6B651279255A9547657B640A" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "E243601A193B9A2CC96156A7";
+			"productName" = "TrainingCore";
+		};
+		"AA6DEAFCDE369F9A566F20A0" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "40EA9C00F488CB050D8F9FD4";
+			"productName" = "StudioCore";
+		};
+	};
+	"rootObject" = "13FAE31244D209EABDC83B78";
+}

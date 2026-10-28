@@ -1,0 +1,17 @@
+{
+  "version": "6.2",
+  "platform": "ubuntu24.04-x86_64",
+  "archive_url": "https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz",
+  "signature_url": "https://download.swift.org/swift-6.2-release/ubuntu2404/swift-6.2-RELEASE/swift-6.2-RELEASE-ubuntu24.04.tar.gz.sig",
+  "archive_sha256": "8e3d63a3371caad495e694414b9b9a22c5f68c6473077406c7296472a41bc077",
+  "signing_key_fingerprint": "52BB7E3DE28A71BE22EC05FFEF80A866B47A981F",
+  "key_source": "https://github.com/swiftlang/swift-org-website/blob/f5cafcf9ac2c72a23c5ce01bb8e0ad9a517c46fd/keys/release-key-swift-6.x.asc",
+  "documented_fingerprint_source": "https://github.com/swiftlang/swift-org-website/blob/f5cafcf9ac2c72a23c5ce01bb8e0ad9a517c46fd/keys/active/index.md",
+  "key_file_sha256_at_verification": "2ada84351b77be3a832bfb612c64cf3e22399c933645c490bab1f9fe18f3c229",
+  "verification": "GnuPG GOOD signature and VALIDSIG with the expected Swift 6.x release signing key; archive SHA-256 calculated only after signature verification",
+  "installed_path": "/workspace/.toolchains/swift-6.2",
+  "validated_host": "Debian GNU/Linux 13 x86_64",
+  "smoke_validation": "swift --version reports 6.2; SwiftPM compiles Foundation and runs one XCTest exercising JSON Codable and Calendar successfully",
+  "limits": "This Linux toolchain does not include Xcode, SwiftUI, StoreKit, UIKit, or the iOS SDK. Native app compilation and simulator/device tests still require macOS/Xcode.",
+  "installer_validation": "Saved installer completed a separate fresh installation with GPG and SHA-256 verification, and its existing-installation reuse path completed successfully; temporary duplicate installation was removed."
+}
