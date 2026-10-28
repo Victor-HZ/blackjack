@@ -141,6 +141,7 @@ final class AppFlowTests: XCTestCase {
         let result = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'simulation.history.'")).firstMatch
         XCTAssertTrue(result.waitForExistence(timeout: 5), "Saved simulation row is missing from Progress.")
         reveal(result); result.tap()
+        XCTAssertTrue(app.navigationBars["Simulation results"].waitForExistence(timeout: 5), "Tapping the saved simulation row must open its results.")
         XCTAssertTrue(app.descendants(matching: .any)["simulation.results"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["10 rounds · Test"].exists)
     }

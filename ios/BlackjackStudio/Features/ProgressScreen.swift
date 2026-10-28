@@ -91,6 +91,7 @@ struct ProgressScreen: View {
                                 Image(systemName: "chevron.right").font(.caption2.weight(.semibold)).foregroundStyle(StudioTheme.muted)
                             }
                         }.padding(18).frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
                     }.buttonStyle(.plain)
                         .accessibilityElement(children: .combine)
                         .accessibilityIdentifier("simulation.history.\(summary.id.uuidString)")
