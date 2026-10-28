@@ -43,7 +43,11 @@ final class PurchaseFlowTests: XCTestCase {
         XCTAssertEqual(store.allTransactions().filter { $0.productIdentifier == productID }.count, 1)
     }
     func testRefundRemovesPremiumAccess() async throws {
-        let transaction = try await store.buyProduct(identifier: productID)
+        _ = try await store.buyProduct(identifier: productID)
+        // buyProduct returns StoreKit.Transaction; refunds use SKTestTransaction's identifier.
+        let transactions = store.allTransactions().filter { $0.productIdentifier == productID }
+        XCTAssertEqual(transactions.count, 1)
+        let transaction = try XCTUnwrap(transactions.first)
         app.launch()
         openPairs()
         XCTAssertTrue(app.navigationBars["Pair cancellation"].waitForExistence(timeout: 10))
