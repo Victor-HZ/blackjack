@@ -2,7 +2,7 @@
 
 Open [preview.html](preview.html) directly in a browser. It is self-contained, works offline, and requires no build or external assets.
 
-This is an **interactive design prototype**, not a compiled iOS app, Simulator capture, or App Store screenshot. The intended SwiftUI implementation lives in `ios/BlackjackStudio`.
+This is an **interactive design prototype**, not a compiled iOS app, Simulator capture, or App Store screenshot. The intended SwiftUI implementation lives in `ios/BlackjackStudio`. Fixed-round simulation is implemented in the native app and React web app; this lightweight HTML prototype does not include that newer flow. See [the native simulation documentation](../Documentation/SIMULATION.md).
 
 The four initial frames show:
 

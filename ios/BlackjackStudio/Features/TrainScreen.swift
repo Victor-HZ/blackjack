@@ -16,6 +16,7 @@ struct TrainScreen: View {
             VStack(alignment: .leading, spacing: 26) {
                 dailyPractice
                 nextSession
+                simulationEntry
                 VStack(alignment: .leading, spacing: 12) {
                     SectionTitle(title: "Drills")
                     VStack(spacing: 0) {
@@ -51,6 +52,23 @@ struct TrainScreen: View {
                         .accessibilityLabel("Settings")
                 }
             }
+    }
+    private var simulationEntry: some View {
+        Button { model.showSimulation = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "suit.spade").font(.title3).foregroundStyle(StudioTheme.accent)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(model.snapshot.activeSimulation == nil ? "Simulation" : model.snapshot.activeSimulation?.stage == .complete ? "Simulation results" : "Resume simulation")
+                        .font(.headline).foregroundStyle(StudioTheme.ink)
+                    Text(model.snapshot.activeSimulation.map { "\($0.completedRounds) of \($0.configuration.rounds) rounds completed" } ?? "10, 25, or 50 rounds. Feedback on your play.")
+                        .font(.subheadline).foregroundStyle(StudioTheme.muted)
+                }.multilineTextAlignment(.leading)
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(StudioTheme.muted)
+            }.padding(18).frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
+                .contentShape(Rectangle())
+        }.buttonStyle(.plain).accessibilityIdentifier("simulation.open")
     }
     private var nextSession: some View {
         StudioCard {

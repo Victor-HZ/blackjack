@@ -11,6 +11,7 @@ struct BlackjackStudioApp: App {
                 .tint(StudioTheme.accent)
                 .task { await purchases.start() }
                 .onChange(of: scenePhase) { _, phase in
+                    model.setApplicationActive(phase == .active)
                     if phase == .active { Task { await purchases.refresh() } }
                     if phase == .background { Task { await model.flushProgress() } }
                 }
@@ -35,6 +36,11 @@ struct RootView: View {
                 .toolbarBackground(.visible, for: .tabBar)
                 .fullScreenCover(item: $model.activeDrill) { kind in
                     DrillSessionView(kind: kind, onFinish: model.finish, hapticsEnabled: model.snapshot.preferences.haptics)
+                }
+                .fullScreenCover(isPresented: $model.showSimulation, onDismiss: model.simulationDidDismiss) {
+                    SimulationScreen()
+                        .onAppear { model.setSimulationVisible(true) }
+                        .onDisappear { model.setSimulationVisible(false) }
                 }
                 .sheet(isPresented: $model.showPaywall) { PaywallView() }
                 .sheet(isPresented: $model.showSettings) { SettingsScreen() }

@@ -28,7 +28,7 @@ function tableRows(kind: TableKind): { label: string; cards: Card[] }[] {
   });
 }
 
-export function StrategyGuide({ rules }: { rules: Rules }) {
+export function StrategyGuide({ rules, context = 'table' }: { rules: Rules; context?: 'table' | 'simulation' }) {
   const [kind, setKind] = useState<TableKind>('hard');
   const [firstRank, setFirstRank] = useState<Card['rank']>('10');
   const [secondRank, setSecondRank] = useState<Card['rank']>('6');
@@ -80,7 +80,7 @@ export function StrategyGuide({ rules }: { rules: Rules }) {
         <div className="strategy-answer" aria-live="polite"><span className={`strategy-answer-symbol strategy-cell-${recommendation.action}`}>{lookupLabel?.letter ?? '✓'}</span><div><span>YOUR BEST MOVE</span><h3>{lookupLabel?.label ?? recommendation.action}</h3></div><ArrowRight size={20} /></div>
         <p className="strategy-answer-reason">{recommendation.reason}</p>
       </section>
-      <section className="strategy-rule-card"><div><Lightbulb size={19} /><h3>Know your table</h3></div><p>{rules.decks < 4 ? 'Your table uses fewer than four decks. This guide shows multi-deck strategy; single- and double-deck deviations are not included.' : 'This chart uses your current table rules. A change in the rules can change the right play.'}</p><dl><div><dt>Decks</dt><dd>{rules.decks}</dd></div><div><dt>Dealer soft 17</dt><dd>{rules.hitSoft17 ? 'Hits' : 'Stands'}</dd></div><div><dt>Double after split</dt><dd>{rules.doubleAfterSplit ? 'Allowed' : 'Not allowed'}</dd></div><div><dt>Late surrender</dt><dd>{rules.surrender ? 'Allowed' : 'Not allowed'}</dd></div></dl><p className="strategy-small-note">Basic strategy reduces the house edge. It does not guarantee a win.</p></section>
+      <section className="strategy-rule-card"><div><Lightbulb size={19} /><h3>{context === 'simulation' ? 'Simulation rules' : 'Know your table'}</h3></div><p>{rules.decks < 4 ? 'Your table uses fewer than four decks. This guide shows multi-deck strategy; single- and double-deck deviations are not included.' : context === 'simulation' ? 'This chart uses the saved rules from your simulation. Your practice table is unchanged.' : 'This chart uses your current table rules. A change in the rules can change the right play.'}</p><dl><div><dt>Decks</dt><dd>{rules.decks}</dd></div><div><dt>Dealer soft 17</dt><dd>{rules.hitSoft17 ? 'Hits' : 'Stands'}</dd></div><div><dt>Double after split</dt><dd>{rules.doubleAfterSplit ? 'Allowed' : 'Not allowed'}</dd></div><div><dt>Late surrender</dt><dd>{rules.surrender ? 'Allowed' : 'Not allowed'}</dd></div></dl><p className="strategy-small-note">Basic strategy reduces the house edge. It does not guarantee a win.</p></section>
     </aside>
   </div>;
 }

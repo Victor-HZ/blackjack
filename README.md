@@ -29,6 +29,8 @@ Vite defaults to port 5173. The app is entirely client-side: no accounts, API cr
 - Live running and true Hi-Lo counts; the dealer's hole card is excluded from the running count until revealed.
 - Hard-total, soft-total, and pair strategy charts with an interactive hand lookup.
 - Twenty-card counting drills with immediate feedback and accuracy tracking.
+- Fixed-round simulations: choose 10, 25, or 50 rounds, Guided feedback or an unassisted Test, and optional running-count recall.
+- Simulation results grade first attempts, identify weak topics, offer missed-decision retry quizzes, and link to relevant training. Closing or reloading preserves the active session; the last 20 completed web simulations remain available separately from free play.
 - Practice bankroll history, strategy accuracy, counting accuracy, and CSV export of the latest 500 rounds.
 - Keyboard actions, responsive mobile navigation, and dialog focus management.
 - Validation of saved state and a recovery path for corrupted local storage.
@@ -53,8 +55,10 @@ Production output is generated in `dist/` and can be served by any static hostin
 - `src/lib/blackjack.ts`: deterministic game reducer, money settlement, shoe, scoring, and basic strategy.
 - `src/lib/storage.ts`: validation of saved games and statistics.
 - `src/components/TrainingTools.tsx`: strategy charts, hand lookup, and counting drills.
+- `src/lib/simulation.ts`: finite sessions, decision/count grading, and replay-validated local persistence.
+- `src/components/Simulation.tsx`: simulation setup, play, review, and targeted practice with adaptive appearance.
 - `src/styles.css`: responsive table and application styles.
-- `e2e/app.spec.ts`: browser tests exercising actual user workflows.
+- `e2e/app.spec.ts` and `e2e/simulation.spec.ts`: browser tests exercising actual user workflows.
 
 ## Cloud environment
 

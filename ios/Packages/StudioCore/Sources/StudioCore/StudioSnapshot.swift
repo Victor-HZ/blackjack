@@ -37,11 +37,32 @@ public struct StudioSnapshot: Codable, Sendable {
     public var preferences = StudioPreferences()
     public var game = GameState()
     public var sessions: [DrillSummary] = []
+    public var activeSimulation: SimulationSession?
+    public var simulationSessions: [SimulationSummary] = []
     public var completedLessons: Set<String> = []
     public var strategyDecisions = 0
     public var correctDecisions = 0
     public var selectedStake = 2_500
     public init() {}
+
+    private enum CodingKeys: String, CodingKey {
+        case version, preferences, game, sessions, completedLessons, strategyDecisions, correctDecisions, selectedStake
+        case activeSimulation, simulationSessions
+    }
+    /// Existing version-one progress remains readable when simulation fields are absent.
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        version = try values.decode(Int.self, forKey: .version)
+        preferences = try values.decode(StudioPreferences.self, forKey: .preferences)
+        game = try values.decode(GameState.self, forKey: .game)
+        sessions = try values.decode([DrillSummary].self, forKey: .sessions)
+        completedLessons = try values.decode(Set<String>.self, forKey: .completedLessons)
+        strategyDecisions = try values.decode(Int.self, forKey: .strategyDecisions)
+        correctDecisions = try values.decode(Int.self, forKey: .correctDecisions)
+        selectedStake = try values.decode(Int.self, forKey: .selectedStake)
+        activeSimulation = try values.decodeIfPresent(SimulationSession.self, forKey: .activeSimulation)
+        simulationSessions = try values.decodeIfPresent([SimulationSummary].self, forKey: .simulationSessions) ?? []
+    }
     public var isValid: Bool {
         version == 1 && game.isValidForRestore
         && [3, 5, 10].contains(preferences.dailyMinutes)
@@ -51,6 +72,10 @@ public struct StudioSnapshot: Codable, Sendable {
         && (100...1_000_000_000).contains(selectedStake)
         && sessions.count <= 1_000 && Set(sessions.map(\.id)).count == sessions.count
         && sessions.allSatisfy(\.isValidForRestore)
+        && (activeSimulation?.isValidForRestore ?? true)
+        && simulationSessions.count <= 100
+        && Set(simulationSessions.map(\.id)).count == simulationSessions.count
+        && simulationSessions.allSatisfy(\.isValidForRestore)
         && completedLessons.count <= 100 && completedLessons.allSatisfy { !$0.isEmpty && $0.count < 100 }
     }
     public var accuracy: Double? { strategyDecisions == 0 ? nil : Double(correctDecisions) / Double(strategyDecisions) }
@@ -59,19 +84,40 @@ public struct StudioSnapshot: Codable, Sendable {
         guard total > 0 else { return nil }
         return Double(sessions.reduce(0) { $0 + $1.correct }) / Double(total)
     }
+    public var simulationStrategyAccuracy: Double? {
+        let decisions = simulationSessions.flatMap(\.decisions)
+        guard !decisions.isEmpty else { return nil }
+        return Double(decisions.filter(\.correct).count) / Double(decisions.count)
+    }
+    public var simulationCountAccuracy: Double? {
+        let responses = simulationSessions.flatMap(\.countResponses)
+        guard !responses.isEmpty else { return nil }
+        return Double(responses.filter(\.correct).count) / Double(responses.count)
+    }
     public func practiceSeconds(on date: Date, calendar: Calendar = .current) -> Double {
-        sessions.filter { calendar.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.elapsedSeconds }
+        let drills = sessions.filter { calendar.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.elapsedSeconds }
+        let simulations = simulationSessions.filter { calendar.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.elapsedSeconds }
+        return drills + simulations
     }
     public func activeDays(ending date: Date, calendar: Calendar = .current) -> [Bool] {
         (0..<7).reversed().map { offset in
             guard let day = calendar.date(byAdding: .day, value: -offset, to: date) else { return false }
             return sessions.contains { calendar.isDate($0.date, inSameDayAs: day) }
+                || simulationSessions.contains { calendar.isDate($0.date, inSameDayAs: day) }
         }
     }
     public mutating func record(_ summary: DrillSummary) {
         guard !sessions.contains(where: { $0.id == summary.id }), summary.isValidForRestore else { return }
         sessions.append(summary)
         sessions = Array(sessions.suffix(1_000))
+    }
+    public mutating func record(_ summary: SimulationSummary) {
+        guard summary.isValidForRestore, !simulationSessions.contains(where: { $0.id == summary.id }) else { return }
+        simulationSessions.append(summary)
+        simulationSessions.sort { lhs, rhs in
+            lhs.date == rhs.date ? lhs.id.uuidString < rhs.id.uuidString : lhs.date < rhs.date
+        }
+        simulationSessions = Array(simulationSessions.suffix(100))
     }
     public mutating func play(_ action: GameAction) {
         let next = GameEngine.reduce(game, action)
@@ -117,11 +163,13 @@ public struct StudioStorage: Sendable {
     }
     public func save(_ snapshot: StudioSnapshot) throws {
         guard snapshot.isValid else { throw StorageError.invalidState }
+        let encoded = try JSONEncoder().encode(snapshot)
+        guard encoded.count <= 32_000_000 else { throw StorageError.invalidState }
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         if let old = decoded(primary) {
             try JSONEncoder().encode(old).write(to: backup, options: .atomic)
         }
-        try JSONEncoder().encode(snapshot).write(to: primary, options: .atomic)
+        try encoded.write(to: primary, options: .atomic)
     }
     public func erase() throws {
         for url in [primary, backup] where FileManager.default.fileExists(atPath: url.path) {

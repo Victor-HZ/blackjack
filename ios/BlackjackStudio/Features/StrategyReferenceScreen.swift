@@ -3,6 +3,7 @@ import BlackjackCore
 
 /// Total-dependent, two-card reference for the same rules used by the practice table.
 struct StrategyReferenceScreen: View {
+    var referenceRules: Rules? = nil
     @EnvironmentObject private var model: StudioModel
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -12,7 +13,7 @@ struct StrategyReferenceScreen: View {
     @State private var dealerRank: Rank = .ten
     @AccessibilityFocusState private var recommendationFocused: Bool
 
-    private var rules: Rules { model.snapshot.game.rules }
+    private var rules: Rules { referenceRules ?? model.snapshot.game.rules }
     private var dealerRanks: [Rank] { [.two, .three, .four, .five, .six, .seven, .eight, .nine, .ten, .ace] }
     private var rows: [StrategyChartRow] { chartKind.rows }
     private var lookupAdvice: StrategyAdvice {
@@ -234,7 +235,7 @@ struct StrategyReferenceScreen: View {
                 ruleLine("Dealer soft 17", value: rules.hitSoft17 ? "Hits" : "Stands")
                 ruleLine("Double after split", value: rules.doubleAfterSplit ? "Allowed" : "Not allowed")
                 ruleLine("Late surrender", value: rules.surrender ? "Allowed" : "Not allowed")
-                Text("Updates with your practice table. This guide covers 4–8 deck games with a dealer hole card, without count-based deviations.")
+                Text(referenceRules == nil ? "Updates with your practice table. This guide covers 4–8 deck games with a dealer hole card, without count-based deviations." : "Uses this simulation’s rules. Initial two-card hands with a dealer hole card, without count-based deviations.")
                     .font(.footnote).foregroundStyle(StudioTheme.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }

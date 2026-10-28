@@ -20,19 +20,21 @@ No backend, API key, CocoaPods install, or third-party Swift package download is
 - Card values, pair cancellation, running counts, full-deck checkpoints, deck estimation, and true counts.
 - Paused timing, negative-answer entry, automatic completion saving, mistake review, and adaptive recommendations.
 - A simulated blackjack table with strategy feedback, all standard actions, configurable rules, and count recall.
+- Fixed 10-, 25-, or 50-round simulations with Guided/Test modes, optional count recall, saved/resumable sessions, and first-attempt skill scores.
+- Targeted feedback: replay missed decisions, review the exact session rules, practice the running count, and repeat a session. See [the simulation flow](Documentation/SIMULATION.md).
 - A free rule-aware strategy reference with hard, soft, and pair charts plus hypothetical-hand lookup.
 - Local progress trends, session history, export, reminders chosen by the user, and deletion.
 - System light/dark appearance, true-black dark backgrounds, shared contrast-aware colors, grouped layouts, large-text alternatives, and optional haptics.
 - StoreKit 2 transaction verification for purchases, restoration, and refunds, with a dismissible, localized-price paywall.
 - Original vector/raster icon assets, privacy manifest, listing copy, policy-page drafts, and release configuration validation.
 
-Free includes the first two lessons, the boundaries lesson, card-value and running-count drills, and the standard practice table. Pro unlocks the remaining lessons/drills and advanced table rules/count tools. There are no subscriptions, ads, real-money wagers, purchasable chips, or casino connections.
+Free includes the first two lessons, the boundaries lesson, card-value and running-count drills, the standard practice table, and fixed-round simulations. Pro unlocks the remaining lessons/drills and advanced table rules/count tools. There are no subscriptions, ads, real-money wagers, purchasable chips, or casino connections.
 
 ## Validation and honest release status
 
-**Executed in this Linux environment:** 65 XCTest cases across BlackjackCore (40), TrainingCore (15), and StudioCore (10). Native source parsing and the Xcode project check pass. The offline design preview has seven passing browser checks for live appearance changes, contrast, drill interactions, offline use, and reduced motion; all 17 repository browser checks pass.
+**Executed in this Linux environment:** 88 XCTest cases across BlackjackCore (40), TrainingCore (15), and StudioCore (33). Native source parsing and the Xcode project check pass. The offline design preview has seven passing browser checks for live appearance changes, contrast, drill interactions, offline use, and reduced motion; all 22 repository browser checks pass, including five simulation scenarios.
 
-**Not executed here:** Apple SDK type checking, an iOS simulator/device build, the nine native UI/StoreKit tests, Sandbox/TestFlight purchases, signing, or App Store submission. The macOS GitHub workflow is committed; its remote run status is unavailable through the current environment’s API proxy. Passing Linux tests does not establish native UI or App Review readiness.
+**Not executed here:** Apple SDK type checking, an iOS simulator/device build, the eleven native UI/StoreKit tests, Sandbox/TestFlight purchases, signing, or App Store submission. The macOS GitHub workflow is committed; its remote run status is unavailable through the current environment’s API proxy. Passing Linux tests does not establish native UI or App Review readiness.
 
 The code uses ordinary native iOS APIs, but Apple SDK/compiler issues can only be ruled out by the first Xcode build. Current Apple policy pages and statutory sources were blocked by this environment's network policy; see `Documentation/RESEARCH.md` for verified evidence and remaining checks.
 

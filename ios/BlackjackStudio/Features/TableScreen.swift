@@ -33,6 +33,17 @@ struct TableScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Button { model.showSimulation = true } label: {
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(model.snapshot.activeSimulation == nil ? "Test your skills" : "Continue simulation").font(.headline)
+                            Text("A fixed number of rounds, with a review of your decisions.")
+                                .font(.subheadline).foregroundStyle(StudioTheme.muted)
+                        }.multilineTextAlignment(.leading)
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right").font(.caption)
+                    }.frame(minHeight: 44).contentShape(Rectangle())
+                }.buttonStyle(.plain).foregroundStyle(StudioTheme.ink).accessibilityIdentifier("simulation.open-table")
                 scoreStrip
                 feltTable
                 StudioCard {

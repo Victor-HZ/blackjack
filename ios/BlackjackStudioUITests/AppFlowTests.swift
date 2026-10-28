@@ -99,20 +99,131 @@ final class AppFlowTests: XCTestCase {
         app.buttons["6"].firstMatch.tap()
         XCTAssertTrue(recommendation.label.contains("Split"))
     }
+    func testTenRoundSimulationEndsExactlyAndItsResultsSurviveRelaunch() {
+        app.launchArguments.append("--simulation-seed=1234")
+        app.launch()
+        openSimulation()
+        let testMode = app.buttons["simulation.mode.test"]
+        reveal(testMode); testMode.tap()
+        let checks = app.switches["simulation.countChecks"]
+        XCTAssertTrue(checks.exists)
+        if checks.value as? String == "1" { reveal(checks); checks.tap() }
+        let start = app.buttons["simulation.start"]
+        reveal(start); start.tap()
+        for round in 1...10 {
+            let deal = app.buttons["simulation.deal"]
+            XCTAssertTrue(deal.waitForExistence(timeout: 5))
+            reveal(deal); deal.tap()
+            XCTAssertEqual(app.descendants(matching: .any)["simulation.roundProgress"].label, "Round \(round) of 10")
+            if app.buttons["simulation.declineInsurance"].exists {
+                let decline = app.buttons["simulation.declineInsurance"]
+                reveal(decline); decline.tap()
+            }
+            if app.buttons["simulation.move.stand"].exists {
+                let stand = app.buttons["simulation.move.stand"]
+                reveal(stand); stand.tap()
+            }
+            XCTAssertFalse(app.descendants(matching: .any)["simulation.decisionFeedback"].exists)
+            XCTAssertFalse(app.descendants(matching: .any)["simulation.results"].exists)
+            let next = app.buttons["simulation.finishRound"]
+            XCTAssertTrue(next.waitForExistence(timeout: 5))
+            reveal(next); next.tap()
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["simulation.results"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["simulation.deal"].exists)
+        XCTAssertFalse(app.buttons["simulation.finishRound"].exists)
+        app.terminate()
+        app.launchArguments = ["--ui-testing", "--skip-onboarding"]
+        app.launch()
+        app.tabBars.buttons["Progress"].tap()
+        let history = app.descendants(matching: .any)["simulation.history"]
+        XCTAssertTrue(history.waitForExistence(timeout: 5))
+        let result = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'simulation.history.'")).firstMatch
+        XCTAssertTrue(result.exists)
+        reveal(result); result.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["simulation.results"].waitForExistence(timeout: 5))
+    }
+    func testGuidedSimulationRequiresFeedbackAndOneCountAnswerBeforeAdvancing() {
+        app.launchArguments.append("--simulation-seed=1234")
+        app.launch()
+        openSimulation()
+        let start = app.buttons["simulation.start"]
+        reveal(start); start.tap()
+        var sawFeedback = false
+        for _ in 0..<10 {
+            let deal = app.buttons["simulation.deal"]
+            XCTAssertTrue(deal.waitForExistence(timeout: 5))
+            reveal(deal); deal.tap()
+            for _ in 0..<4 {
+                if app.buttons["simulation.declineInsurance"].exists {
+                    let decline = app.buttons["simulation.declineInsurance"]
+                    reveal(decline); decline.tap()
+                } else if app.buttons["simulation.move.stand"].exists {
+                    let stand = app.buttons["simulation.move.stand"]
+                    reveal(stand); stand.tap()
+                }
+                let next = app.buttons["simulation.continueDecision"]
+                if next.exists {
+                    sawFeedback = true
+                    XCTAssertTrue(app.descendants(matching: .any)["simulation.decisionFeedback"].exists)
+                    XCTAssertFalse(app.buttons["simulation.deal"].exists)
+                    XCTAssertFalse(app.buttons["simulation.move.stand"].exists)
+                    XCTAssertFalse(app.buttons["simulation.finishRound"].exists)
+                    reveal(next); next.tap()
+                }
+                if app.buttons["simulation.beginCount"].exists { break }
+            }
+            let beginCount = app.buttons["simulation.beginCount"]
+            XCTAssertTrue(beginCount.waitForExistence(timeout: 5))
+            XCTAssertFalse(app.buttons["simulation.finishRound"].exists)
+            reveal(beginCount); beginCount.tap()
+            let answer = app.textFields["simulation.countAnswer"]
+            XCTAssertTrue(answer.waitForExistence(timeout: 3))
+            XCTAssertFalse(app.otherElements["Face-down card"].exists)
+            XCTAssertEqual(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS ' of spades' OR label CONTAINS ' of hearts' OR label CONTAINS ' of clubs' OR label CONTAINS ' of diamonds'")).count, 0)
+            XCTAssertFalse(app.buttons["simulation.finishRound"].exists)
+            let submit = app.buttons["simulation.submitCount"]
+            XCTAssertFalse(submit.isEnabled)
+            reveal(answer); answer.tap(); answer.typeText("-416")
+            reveal(submit); submit.tap()
+            XCTAssertTrue(app.descendants(matching: .any)["simulation.countFeedback"].waitForExistence(timeout: 3))
+            XCTAssertFalse(app.textFields["simulation.countAnswer"].exists)
+            XCTAssertFalse(app.buttons["simulation.submitCount"].exists)
+            let nextRound = app.buttons["simulation.finishRound"]
+            XCTAssertTrue(nextRound.exists)
+            if sawFeedback { break }
+            reveal(nextRound); nextRound.tap()
+        }
+        XCTAssertTrue(sawFeedback, "A guided decision must pause for feedback before the next action.")
+    }
+    private func openSimulation() {
+        let entry = app.buttons["simulation.open"]
+        XCTAssertTrue(entry.waitForExistence(timeout: 10))
+        reveal(entry); entry.tap()
+        XCTAssertTrue(app.buttons["simulation.start"].waitForExistence(timeout: 5))
+    }
     func testCaptureRepresentativeNativeScreens() {
         for appearance in ["Light", "Dark"] {
-            app.launchArguments = ["--ui-testing", "--reset-state", "--skip-onboarding", "-AppleInterfaceStyle", appearance]
+            app.launchArguments = ["--ui-testing", "--reset-state", "--skip-onboarding", "--simulation-seed=1234", "-AppleInterfaceStyle", appearance]
             app.launch()
             XCTAssertTrue(app.buttons["startSession"].waitForExistence(timeout: 10))
             attach("\(appearance)-01-practice")
             app.tabBars.buttons["Learn"].tap(); attach("\(appearance)-02-lessons")
             app.tabBars.buttons["Table"].tap(); attach("\(appearance)-03-table")
             app.tabBars.buttons["Progress"].tap(); attach("\(appearance)-04-progress")
+            app.tabBars.buttons["Train"].tap()
+            openSimulation(); attach("\(appearance)-05-simulation-setup")
+            let start = app.buttons["simulation.start"]
+            reveal(start); start.tap()
+            let deal = app.buttons["simulation.deal"]
+            XCTAssertTrue(deal.waitForExistence(timeout: 5))
+            reveal(deal); deal.tap(); attach("\(appearance)-06-simulation-table")
             app.terminate()
         }
     }
     private func reveal(_ element: XCUIElement) {
         for _ in 0..<6 where !element.isHittable { app.swipeUp() }
+        for _ in 0..<6 where !element.isHittable { app.swipeDown() }
     }
     private func attach(_ name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())

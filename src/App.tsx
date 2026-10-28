@@ -4,10 +4,11 @@ import { ArrowDown, ArrowRight, ArrowUpRight, BarChart3, BookOpen, Check, Chevro
 import { availableActions, basicStrategy, createGame, DEFAULT_RULES, gameReducer, score, trueCount } from './lib/blackjack';
 import type { Card, GameAction, GameState, Move, Rules } from './lib/blackjack';
 import { CountingDrill, StrategyGuide } from './components/TrainingTools';
+import { Simulation } from './components/Simulation';
 import { validateSavedPractice } from './lib/storage';
 import type { PracticeStats as Stats, SavedPractice as Stored } from './lib/storage';
 
-type Page = 'practice' | 'strategy' | 'counting' | 'progress';
+type Page = 'practice' | 'simulation' | 'strategy' | 'counting' | 'progress';
 const STORAGE_KEY = 'blackjack-studio:v1';
 const emptyStats = (): Stats => ({ decisions: 0, correct: 0, drills: 0, correctDrills: 0 });
 const initial = (): Stored => ({ version: 1, game: createGame(), stats: emptyStats(), showHints: true, showCount: true, bet: 25 });
@@ -57,6 +58,7 @@ function Modal({ title, children, onClose }: { title: string; children: ReactNod
 export default function App() {
   const [data, setData] = useState<Stored>(load);
   const [page, setPage] = useState<Page>('practice');
+  const [strategyRules, setStrategyRules] = useState<Rules | null>(null);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [modal, setModal] = useState<'help' | 'settings' | null>(null);
   const closeModal = useCallback(() => setModal(null), []);
@@ -106,16 +108,18 @@ export default function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   });
-  const go = (destination: Page) => { setPage(destination); setMobileMenu(false); };
+  const go = (destination: Page) => { setPage(destination); setMobileMenu(false); if (destination !== 'strategy') setStrategyRules(null); };
   const openSettings = () => { setDraftRules(game.rules); setResetConfirm(false); setModal('settings'); };
   const navigation: { page: Page; label: string; icon: typeof Spade; caption: string }[] = [
     { page:'practice', label:'Practice table', icon:Spade, caption:'PLAY & LEARN' },
+    { page:'simulation', label:'Simulation', icon:Target, caption:'TEST YOUR SKILL' },
     { page:'strategy', label:'Strategy guide', icon:BookOpen, caption:'THE RIGHT MOVE' },
     { page:'counting', label:'Card counting', icon:Layers3, caption:'TRAIN YOUR EDGE' },
     { page:'progress', label:'Your progress', icon:BarChart3, caption:'BUILD YOUR CONFIDENCE' },
   ];
   const headings: Record<Page, { eyebrow: string; title: string; subtitle: string }> = {
     practice: { eyebrow:'YOUR DAILY PRACTICE', title:'Make your next move better.', subtitle:'A little practice. A sharper instinct. Take a seat at the table.' },
+    simulation: { eyebrow:'FIXED-ROUND PRACTICE', title:'Simulation', subtitle:'Choose your rounds. Play, review, and practice what needs work.' },
     strategy: { eyebrow:'THE RIGHT MOVE, EVERY TIME', title:'Build a better instinct.', subtitle:'Learn the numbers behind the decisions. One hand at a time.' },
     counting: { eyebrow:'TRAIN YOUR EDGE', title:'Keep your eye on the count.', subtitle:'Turn a little focus into a skill that stays with you.' },
     progress: { eyebrow:'SMALL STEPS. REAL PROGRESS.', title:'See how far you’ve come.', subtitle:'Your practice, in perspective. Every decision is a chance to learn.' },
@@ -163,9 +167,11 @@ export default function App() {
           </aside></div>
           <section className="bottom-insight"><span className="insight-icon"><BookOpen size={20}/></span><div><strong>The goal isn’t to win every hand. It’s to play every hand well.</strong><p>Consistent decisions make the difference. Your coach follows multi-deck basic strategy.</p></div><button onClick={() => go('progress')}>View your progress<ArrowUpRight size={17}/></button></section>
         </>}
-        {page === 'strategy' && <StrategyGuide rules={game.rules}/>}
+        {page === 'simulation' && <Simulation rules={game.rules} onPractice={(destination, sessionRules) => { setStrategyRules(sessionRules ?? null); go(destination); }} onExit={() => go('practice')}/>}
+        {page === 'strategy' && <StrategyGuide rules={strategyRules ?? game.rules} context={strategyRules ? 'simulation' : 'table'}/>}
         {page === 'counting' && <CountingDrill onComplete={correct => setData(d => ({...d,stats:{...d.stats,drills:d.stats.drills+1,correctDrills:d.stats.correctDrills+Number(correct)}}))}/>}
         {page === 'progress' && <>
+          <section className="bottom-insight"><span className="insight-icon"><Target size={20}/></span><div><strong>Simulation results</strong><p>Review completed sessions or continue a saved simulation.</p></div><button onClick={() => go('simulation')}>Open simulations<ArrowRight size={17}/></button></section>
           <section className="stat-row"><Stat icon={<Target size={20}/>} label="Strategy accuracy" value={accuracy === null ? '—' : `${accuracy}%`} foot={`${stats.correct} correct of ${stats.decisions} decisions`}/><Stat icon={<TrendingUp size={20}/>} label="Session result" value={signed(profit)} suffix="credits" foot={`${game.rounds} rounds played`}/><Stat icon={<Layers3 size={20}/>} label="Counting accuracy" value={stats.drills ? `${Math.round(stats.correctDrills/stats.drills*100)}%` : '—'} foot={`${stats.correctDrills} correct of ${stats.drills} checks`}/></section>
           <section className="progress-card"><div className="section-heading"><div><h2>Your bankroll journey</h2><p>Practice results fluctuate. Focus on the quality of your decisions.</p></div><span className="badge">{game.history.length ? `Last ${game.history.length} rounds` : 'This session'}</span></div>{game.history.length > 1 ? <BankrollChart history={game.history}/> : <div className="empty-progress"><BarChart3 size={35} strokeWidth={1.2}/><h3>Your story starts at the table.</h3><p>Play a few hands to see your practice bankroll over time.</p><button className="primary-button" onClick={() => go('practice')}>Take a seat <ArrowRight size={17}/></button></div>}</section>
           <section className="history-card"><div className="section-heading"><div><h2>Recent hands</h2><p>Your last 20 rounds, at a glance.</p></div><button className="outline-button" disabled={!game.history.length} onClick={exportHistory}><Download size={15}/> Export CSV</button></div>{!game.history.length ? <p className="empty-history">No completed rounds yet. Your hands will appear here after you play.</p> : <div className="history-scroll"><table><thead><tr><th>Round</th><th>Result</th><th>Total bet</th><th>Net credits</th><th>Bankroll</th></tr></thead><tbody>{game.history.slice(-20).reverse().map(round => <tr key={round.id}><td>#{round.id}</td><td><span className={`result-badge ${round.profit > 0 ? 'win' : round.profit < 0 ? 'loss' : ''}`}>{round.outcomes.join(' / ')}</span></td><td>{credits(round.bet)}</td><td className={round.profit < 0 ? 'negative' : 'positive'}>{signed(round.profit)}</td><td>{credits(round.bankroll)}</td></tr>)}</tbody></table></div>}</section>

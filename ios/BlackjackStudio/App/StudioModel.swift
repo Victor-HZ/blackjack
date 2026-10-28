@@ -13,6 +13,11 @@ final class StudioModel: ObservableObject {
     @Published var activeDrill: DrillKind?
     @Published var showPaywall = false
     @Published var showSettings = false
+    @Published var showSimulation = false
+    private var drillAfterSimulation: DrillKind?
+    private var simulationVisible = false
+    private var applicationActive = true
+    private var simulationClockStarted: TimeInterval?
     @Published var storageMessage: String?
     @Published var lastDecision: StrategyAdvice?
     @Published var lastDecisionCorrect = false
@@ -65,11 +70,94 @@ final class StudioModel: ObservableObject {
         snapshot.play(action)
         StudioHaptics.tap(enabled: snapshot.preferences.haptics)
     }
+    // Simulation has its own shoe and history; free play is left exactly where it was.
+    func startSimulation(_ configuration: SimulationConfiguration) {
+        guard snapshot.activeSimulation == nil || snapshot.activeSimulation?.stage == .complete else { return }
+        var seed = UInt64.random(in: 0...UInt64.max)
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing"),
+           let argument = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix("--simulation-seed=") }),
+           let testSeed = UInt64(argument.dropFirst("--simulation-seed=".count)) { seed = testSeed }
+        #endif
+        snapshot.activeSimulation = SimulationSession(configuration: configuration, seed: seed)
+        resetSimulationClock()
+    }
+    func dealSimulationRound() { changeSimulation { $0.startNextRound() } }
+    func playSimulation(_ action: GameAction) {
+        changeSimulation { $0.play(action) }
+        StudioHaptics.tap(enabled: snapshot.preferences.haptics)
+    }
+    func continueSimulationDecision() { changeSimulation { $0.continueDecisionFeedback() } }
+    func beginSimulationCount() { changeSimulation { $0.beginCountCheck() } }
+    func submitSimulationCount(_ answer: Int) { changeSimulation { $0.submitCount(answer) } }
+    func finishSimulationRound() {
+        let wasComplete = snapshot.activeSimulation?.stage == .complete
+        changeSimulation { $0.finishRound() }
+        if !wasComplete && snapshot.activeSimulation?.stage == .complete {
+            StudioHaptics.success(enabled: snapshot.preferences.haptics)
+        }
+    }
+    private func changeSimulation(_ action: (inout SimulationSession) -> Void) {
+        guard var session = snapshot.activeSimulation else { return }
+        if let started = simulationClockStarted {
+            session.recordPracticeTime(max(0, ProcessInfo.processInfo.systemUptime - started))
+        }
+        action(&session)
+        var updated = snapshot
+        updated.activeSimulation = session
+        if let summary = session.summary(), !updated.simulationSessions.contains(where: { $0.id == summary.id }) {
+            updated.record(summary)
+        }
+        snapshot = updated
+        resetSimulationClock()
+    }
+    private func resetSimulationClock() {
+        simulationClockStarted = simulationVisible && applicationActive
+            && snapshot.activeSimulation != nil && snapshot.activeSimulation?.stage != .complete
+            ? ProcessInfo.processInfo.systemUptime : nil
+    }
+    func setSimulationVisible(_ visible: Bool) {
+        if simulationClockStarted != nil { changeSimulation { _ in } }
+        simulationVisible = visible
+        resetSimulationClock()
+    }
+    func setApplicationActive(_ active: Bool) {
+        if simulationClockStarted != nil { changeSimulation { _ in } }
+        applicationActive = active
+        resetSimulationClock()
+    }
+    func discardSimulation() {
+        simulationClockStarted = nil
+        snapshot.activeSimulation = nil
+    }
+    func closeCompletedSimulation() {
+        guard snapshot.activeSimulation?.stage == .complete else { return }
+        snapshot.activeSimulation = nil
+        simulationClockStarted = nil
+        showSimulation = false
+    }
+    func practiceSimulationCount() {
+        if showSimulation {
+            drillAfterSimulation = .runningCount
+            if snapshot.activeSimulation?.stage == .complete { snapshot.activeSimulation = nil }
+            showSimulation = false
+        } else { activeDrill = .runningCount }
+    }
+    func simulationDidDismiss() {
+        setSimulationVisible(false)
+        if let next = drillAfterSimulation {
+            drillAfterSimulation = nil
+            activeDrill = next
+        }
+    }
     func completeOnboarding() {
         snapshot.preferences.hasOnboarded = true
         selectedTab = 0
     }
     func deletePracticeData() {
+        simulationClockStarted = nil
+        drillAfterSimulation = nil
+        showSimulation = false
         var fresh = StudioSnapshot()
         fresh.preferences.hasOnboarded = true
         snapshot = fresh

@@ -54,6 +54,10 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "E48429487CBDA50C05B05149";
 		};
+		"71EADD9E15FD034FD3752630" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E458A81606EC34C7853D22FD";
+		};
 		"9E18FF8D1759A9EA32D7A0A1" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "4C84B52B13CBC8391299DCB2";
@@ -301,6 +305,13 @@
 			"sourceTree" = "SOURCE_ROOT";
 			"name" = "StudioCore";
 		};
+		"E458A81606EC34C7853D22FD" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "BlackjackStudio/Features/SimulationScreen.swift";
+			"sourceTree" = "SOURCE_ROOT";
+			"name" = "SimulationScreen.swift";
+		};
 		"E48429487CBDA50C05B05149" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -387,6 +398,7 @@
 				"5A567980F11B8CA0BA90E843",
 				"3C930B48ACE18AD2452E936F",
 				"1F0AFB148BBC3B1F47B8E37A",
+				"E458A81606EC34C7853D22FD",
 				"67A49AF4882E6416070362F8",
 				"E57BF6AC248C4C6BA403F8CA",
 				"C3C7795925BF1FF888C602A0",
@@ -574,6 +586,7 @@
 				"136BC805ECCE2E987788E65D",
 				"EDBA65E98094953DD48ADE63",
 				"26B09049690875817133FCB1",
+				"71EADD9E15FD034FD3752630",
 				"A7945E57C5EDC871A1C878E9",
 				"241FE4D7421BCA2349FFC7C2",
 				"BB62093946E102E6545C6BBE",

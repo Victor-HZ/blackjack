@@ -1,6 +1,7 @@
 import SwiftUI
 import Charts
 import TrainingCore
+import StudioCore
 
 struct ProgressScreen: View {
     @EnvironmentObject private var model: StudioModel
@@ -14,13 +15,14 @@ struct ProgressScreen: View {
                 StudioCard {
                     let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 20)) : AnyLayout(HStackLayout(spacing: 20))
                     layout {
-                        metric(value: model.snapshot.trainingAccuracy.map { "\(Int(($0 * 100).rounded()))%" } ?? "—", label: "Accuracy")
+                        metric(value: model.snapshot.trainingAccuracy.map { "\(Int(($0 * 100).rounded()))%" } ?? "—", label: "Drill accuracy")
                         if !typeSize.isAccessibilitySize { Divider() }
-                        metric(value: "\(sessions.count)", label: "Sessions")
+                        metric(value: "\(sessions.count + model.snapshot.simulationSessions.count)", label: "Sessions")
                             .accessibilityElement(children: .combine).accessibilityIdentifier("progress.sessions")
                     }.fixedSize(horizontal: false, vertical: true)
                 }
                 week
+                if !model.snapshot.simulationSessions.isEmpty { simulationHistory }
                 StudioCard {
                     VStack(alignment: .leading, spacing: 18) {
                         SectionTitle(title: "Accuracy", caption: "Last 20 sessions")
@@ -40,7 +42,7 @@ struct ProgressScreen: View {
                 }
                 skills
                 VStack(alignment: .leading, spacing: 12) {
-                    SectionTitle(title: "Recent sessions")
+                    SectionTitle(title: "Recent drills")
                     if sessions.isEmpty {
                         EmptyState(symbol: "clock", title: "No sessions yet", message: "Completed drills appear here.")
                         Button { model.selectedTab = 0 } label: { Text("Choose a drill") }.buttonStyle(StudioPrimaryButton())
@@ -58,6 +60,42 @@ struct ProgressScreen: View {
             .toolbar { ToolbarItem(placement: .topBarTrailing) {
                 Button { model.showSettings = true } label: { Image(systemName: "slider.horizontal.3").frame(width: 44, height: 44) }.accessibilityLabel("Settings")
             } }
+    }
+    private var simulationHistory: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SectionTitle(title: "Simulations", caption: "Last 10")
+            VStack(spacing: 0) {
+                ForEach(Array(model.snapshot.simulationSessions.suffix(10).reversed())) { summary in
+                    NavigationLink {
+                        SimulationResultsView(summary: summary,
+                            onRepeat: model.snapshot.activeSimulation == nil || model.snapshot.activeSimulation?.stage == .complete ? {
+                                model.startSimulation(summary.configuration)
+                                model.showSimulation = true
+                            } : nil,
+                            onPracticeCount: model.practiceSimulationCount)
+                        .navigationTitle("Simulation results").navigationBarTitleDisplayMode(.inline)
+                    } label: {
+                        let layout = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10)) : AnyLayout(HStackLayout(spacing: 14))
+                        layout {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("\(summary.completedRounds) rounds · \(summary.configuration.mode == .guided ? "Guided" : "Test")")
+                                    .font(.body.weight(.medium)).foregroundStyle(StudioTheme.ink)
+                                Text(summary.date.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.caption).foregroundStyle(StudioTheme.muted)
+                            }
+                            if !typeSize.isAccessibilitySize { Spacer(minLength: 0) }
+                            HStack(spacing: 10) {
+                                Text(summary.strategyAccuracy.map { "\(Int(($0 * 100).rounded()))% decisions" } ?? "No decisions")
+                                    .font(.subheadline.monospacedDigit()).foregroundStyle(StudioTheme.muted)
+                                Image(systemName: "chevron.right").font(.caption2.weight(.semibold)).foregroundStyle(StudioTheme.muted)
+                            }
+                        }.padding(18).frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    }.buttonStyle(.plain).accessibilityIdentifier("simulation.history.\(summary.id.uuidString)")
+                    if summary.id != model.snapshot.simulationSessions.suffix(10).first?.id { Divider().padding(.leading, 18) }
+                }
+            }.background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
+                .accessibilityIdentifier("simulation.history")
+        }
     }
     private var week: some View {
         VStack(alignment: .leading, spacing: 16) {
