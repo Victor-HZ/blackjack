@@ -20,7 +20,11 @@ concurrency:
 
 jobs:
   native-tests:
-    runs-on: macos-latest
+    runs-on: macos-26
+    # iOS 26.5 has a StoreKitTest control-channel regression (notEntitled).
+    # Keep the SDK/runtime pair explicit: https://developer.apple.com/forums/thread/826971
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +33,8 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
+          toolchain_version="$(xcodebuild -version | tr '\n' ' ')"
+          printf '::notice title=Apple toolchain::%s\n' "$toolchain_version"
 
       - name: Check deterministic project and property lists
         run: |
@@ -44,23 +50,20 @@ jobs:
             swift test --package-path "ios/Packages/$package" --jobs 4
           done
 
-      - name: Select an available iPhone simulator
+      - name: Select the iOS 26.2 iPhone simulator
         run: |
           set -euo pipefail
           simulator_id="$(python3 - <<'PY'
-          import json, re, subprocess
+          import json, subprocess, sys
+          runtime = 'com.apple.CoreSimulator.SimRuntime.iOS-26-2'
           devices = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '--json']))['devices']
-          choices = []
-          for runtime, items in devices.items():
-              if '.iOS-' not in runtime:
-                  continue
-              version = tuple(map(int, re.findall(r'\d+', runtime.split('.iOS-')[-1])))
-              for device in items:
-                  if device.get('isAvailable') and device.get('name', '').startswith('iPhone'):
-                      choices.append((version, device['name'], device['udid']))
+          choices = [device for device in devices.get(runtime, [])
+                     if device.get('isAvailable') and device.get('name', '').startswith('iPhone')]
           if not choices:
-              raise SystemExit('No available iPhone simulator runtime is installed on this runner.')
-          print(sorted(choices, reverse=True)[0][2])
+              raise SystemExit('Required iOS 26.2 iPhone simulator is unavailable. Do not silently switch StoreKit tests to another runtime.')
+          device = min(choices, key=lambda item: (item['name'] != 'iPhone 17 Pro', item['name']))
+          print(f"::notice title=iOS Simulator::{device['name']} — iOS 26.2 ({runtime})", file=sys.stderr)
+          print(device['udid'])
           PY
           )"
           printf 'SIMULATOR_ID=%s\n' "$simulator_id" >> "$GITHUB_ENV"

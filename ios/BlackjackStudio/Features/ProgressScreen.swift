@@ -64,6 +64,7 @@ struct ProgressScreen: View {
     private var simulationHistory: some View {
         VStack(alignment: .leading, spacing: 12) {
             SectionTitle(title: "Simulations", caption: "Last 10")
+                .accessibilityIdentifier("simulation.history")
             VStack(spacing: 0) {
                 ForEach(Array(model.snapshot.simulationSessions.suffix(10).reversed())) { summary in
                     NavigationLink {
@@ -90,11 +91,12 @@ struct ProgressScreen: View {
                                 Image(systemName: "chevron.right").font(.caption2.weight(.semibold)).foregroundStyle(StudioTheme.muted)
                             }
                         }.padding(18).frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                    }.buttonStyle(.plain).accessibilityIdentifier("simulation.history.\(summary.id.uuidString)")
+                    }.buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("simulation.history.\(summary.id.uuidString)")
                     if summary.id != model.snapshot.simulationSessions.suffix(10).first?.id { Divider().padding(.leading, 18) }
                 }
             }.background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
-                .accessibilityIdentifier("simulation.history")
         }
     }
     private var week: some View {

@@ -138,10 +138,11 @@ final class AppFlowTests: XCTestCase {
         app.tabBars.buttons["Progress"].tap()
         let history = app.descendants(matching: .any)["simulation.history"]
         XCTAssertTrue(history.waitForExistence(timeout: 5))
-        let result = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'simulation.history.'")).firstMatch
-        XCTAssertTrue(result.exists)
+        let result = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'simulation.history.'")).firstMatch
+        XCTAssertTrue(result.waitForExistence(timeout: 5), "Saved simulation row is missing from Progress.")
         reveal(result); result.tap()
         XCTAssertTrue(app.descendants(matching: .any)["simulation.results"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["10 rounds · Test"].exists)
     }
     func testGuidedSimulationRequiresFeedbackAndOneCountAnswerBeforeAdvancing() {
         app.launchArguments.append("--simulation-seed=1234")
