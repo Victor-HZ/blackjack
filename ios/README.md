@@ -22,17 +22,17 @@ No backend, API key, CocoaPods install, or third-party Swift package download is
 - A simulated blackjack table with strategy feedback, all standard actions, configurable rules, and count recall.
 - A free rule-aware strategy reference with hard, soft, and pair charts plus hypothetical-hand lookup.
 - Local progress trends, session history, export, reminders chosen by the user, and deletion.
-- Native accessibility, light/dark themes, and optional haptics.
-- Verified StoreKit 2 purchase/restore/refund handling and a dismissible, localized-price paywall.
+- System light/dark appearance, true-black dark backgrounds, shared contrast-aware colors, grouped layouts, large-text alternatives, and optional haptics.
+- StoreKit 2 transaction verification for purchases, restoration, and refunds, with a dismissible, localized-price paywall.
 - Original vector/raster icon assets, privacy manifest, listing copy, policy-page drafts, and release configuration validation.
 
 Free includes the first two lessons, the boundaries lesson, card-value and running-count drills, and the standard practice table. Pro unlocks the remaining lessons/drills and advanced table rules/count tools. There are no subscriptions, ads, real-money wagers, purchasable chips, or casino connections.
 
 ## Validation and honest release status
 
-**Executed in this Linux environment:** 65 XCTest cases across BlackjackCore (40), TrainingCore (15), and StudioCore (10). Native source parsing, Xcode project/property-list structure, asset validation, and the offline design-review browser checks also pass.
+**Executed in this Linux environment:** 65 XCTest cases across BlackjackCore (40), TrainingCore (15), and StudioCore (10). Native source parsing and the Xcode project check pass. The offline design preview has seven passing browser checks for live appearance changes, contrast, drill interactions, offline use, and reduced motion; all 17 repository browser checks pass.
 
-**Not executed here:** Apple SDK type checking, an iOS simulator/device build, the nine native UI/StoreKit tests, Sandbox/TestFlight purchases, signing, or App Store submission. The macOS GitHub workflow is included but has not been pushed or run. Passing Linux tests does not establish native UI or App Review readiness.
+**Not executed here:** Apple SDK type checking, an iOS simulator/device build, the nine native UI/StoreKit tests, Sandbox/TestFlight purchases, signing, or App Store submission. The macOS GitHub workflow is committed; its remote run status is unavailable through the current environment’s API proxy. Passing Linux tests does not establish native UI or App Review readiness.
 
 The code uses ordinary native iOS APIs, but Apple SDK/compiler issues can only be ruled out by the first Xcode build. Current Apple policy pages and statutory sources were blocked by this environment's network policy; see `Documentation/RESEARCH.md` for verified evidence and remaining checks.
 
@@ -56,7 +56,7 @@ The generated Xcode project is checked in; no XcodeGen installation is needed.
 
 Open `Design/preview.html` in a browser or serve it as a local static file. It is an interactive **design prototype**, with clearly labeled sample progress and sample pricing. It is not the iOS executable and must not be used as proof of native rendering or submitted as App Store screenshots.
 
-The native SwiftUI implementation is the source of truth. `AppFlowTests.testCaptureRepresentativeNativeScreens` captures actual native screens when run in Xcode.
+The native SwiftUI implementation is the source of truth. The preview defaults to system appearance, with Light and Dark overrides for review. `AppFlowTests.testCaptureRepresentativeNativeScreens` captures actual native screens in both appearances when run in Xcode.
 
 ## Publish
 

@@ -22,7 +22,7 @@ try {
   }
   await writeFile(path.join(output,'AppIcon.appiconset/Contents.json'),JSON.stringify({images:entries,info:{author:'xcode',version:1}},null,2)+'\n');
   await writeFile(path.join(output,'Contents.json'),JSON.stringify({info:{author:'xcode',version:1}},null,2)+'\n');
-  for (const [name, light, dark] of [['AccentColor','#285F42','#D0E5AB'],['LaunchBackground','#F6F7F1','#0F1D17']]) {
+  for (const [name, light, dark] of [['AccentColor','#326348','#A7C9B0'],['LaunchBackground','#F2F2F7','#000000']]) {
     const color = hex => ({'color-space':'srgb',components:{alpha:'1.000',red:(parseInt(hex.slice(1,3),16)/255).toFixed(3),green:(parseInt(hex.slice(3,5),16)/255).toFixed(3),blue:(parseInt(hex.slice(5,7),16)/255).toFixed(3)}});
     await mkdir(path.join(output,name+'.colorset'),{recursive:true});
     await writeFile(path.join(output,name+'.colorset/Contents.json'),JSON.stringify({colors:[{idiom:'universal',color:color(light)},{idiom:'universal',appearances:[{appearance:'luminosity',value:'dark'}],color:color(dark)}],info:{author:'xcode',version:1}},null,2)+'\n');

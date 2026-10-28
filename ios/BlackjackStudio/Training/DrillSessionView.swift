@@ -61,17 +61,17 @@ struct DrillSessionView: View {
                 feedbackFocused = responseID != nil
             }
             .sheet(isPresented: $reviewingMistakes) { MistakeReview(summary: session.summary()) }
-        }.tint(TrainingStyle.ink).interactiveDismissDisabled(!session.isComplete)
+        }.tint(TrainingStyle.accent).interactiveDismissDisabled(!session.isComplete)
     }
     private func exercise(_ prompt: DrillPrompt) -> some View {
         VStack(spacing: 22) {
             VStack(spacing: 10) {
-                HStack {
+                HStack(alignment: .firstTextBaseline) {
                     Text("\(session.index + 1) of \(session.prompts.count)").font(.subheadline.weight(.semibold))
                     Spacer()
                     Text("\(session.correct) correct").font(.subheadline)
                 }.foregroundStyle(TrainingStyle.secondary)
-                ProgressView(value: Double(session.responses.count), total: Double(session.prompts.count)).tint(TrainingStyle.ink)
+                ProgressView(value: Double(session.responses.count), total: Double(session.prompts.count)).tint(TrainingStyle.accent)
                     .accessibilityLabel("Questions answered")
             }
             if kind == .runningCount || kind == .fullDeck {
@@ -95,33 +95,40 @@ struct DrillSessionView: View {
         switch kind {
         case .cardValues, .pairs, .runningCount, .fullDeck:
             VStack(spacing: 20) {
-                HStack(spacing: kind == .fullDeck ? -13 : 17) {
-                    ForEach(Array(prompt.cards.enumerated()), id: \.offset) { _, card in
-                        TrainingCardFace(card: card, width: kind == .fullDeck ? 73 : 89)
-                    }
+                ViewThatFits(in: .horizontal) {
+                    cardRow(prompt.cards, width: kind == .fullDeck ? 73 : 89)
+                    cardRow(prompt.cards, width: 64)
                 }.padding(.vertical, 8)
                 if kind == .fullDeck {
-                    Text("\(prompt.cardsSeen) / 52 CARDS").font(.caption2.weight(.medium)).tracking(2).foregroundStyle(TrainingStyle.lime.opacity(0.85))
+                    Text("\(prompt.cardsSeen) of 52 cards").font(.caption).foregroundStyle(TrainingStyle.onFelt)
                 }
-            }.padding(.vertical, 26).frame(maxWidth: .infinity)
-                .background(TrainingStyle.forest, in: RoundedRectangle(cornerRadius: 26))
+            }.padding(.vertical, 24).padding(.horizontal, 12).frame(maxWidth: .infinity)
+                .background(TrainingStyle.felt, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
                 .accessibilityElement(children: .contain).accessibilityLabel(kind == .fullDeck ? "Next four simulated cards" : "Simulated cards")
         case .trueCount:
-            HStack(spacing: 18) {
-                numberPanel(DrillPrompt.format(Double(prompt.runningCount ?? 0), signed: true), label: "RUNNING")
-                Text("÷").font(.system(size: 36, weight: .light)).foregroundStyle(TrainingStyle.lime.opacity(0.6)).accessibilityLabel("divided by")
-                numberPanel(DrillPrompt.format(prompt.decksRemaining ?? 1), label: "DECKS LEFT")
-            }.padding(.horizontal, 24).padding(.vertical, 35).frame(maxWidth: .infinity)
-                .background(TrainingStyle.forest, in: RoundedRectangle(cornerRadius: 26))
+            let layout = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 18)) : AnyLayout(HStackLayout(spacing: 18))
+            layout {
+                numberPanel(DrillPrompt.format(Double(prompt.runningCount ?? 0), signed: true), label: "Running count")
+                Text("÷").font(.title.weight(.light)).foregroundStyle(TrainingStyle.onFelt).accessibilityLabel("divided by")
+                numberPanel(DrillPrompt.format(prompt.decksRemaining ?? 1), label: "Decks left")
+            }.padding(24).frame(maxWidth: .infinity)
+                .background(TrainingStyle.felt, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
                 .accessibilityElement(children: .combine)
         case .deckEstimation:
             DeckStackIllustration(decks: prompt.decksRemaining ?? 1)
         }
     }
+    private func cardRow(_ cards: [TrainingCard], width: CGFloat) -> some View {
+        HStack(spacing: kind == .fullDeck ? -13 : 17) {
+            ForEach(Array(cards.enumerated()), id: \.offset) { _, card in
+                TrainingCardFace(card: card, width: width)
+            }
+        }
+    }
     private func numberPanel(_ value: String, label: String) -> some View {
         VStack(spacing: 12) {
-            Text(value).font(.system(.largeTitle, design: .rounded).weight(.semibold)).monospacedDigit().foregroundStyle(TrainingStyle.lime).minimumScaleFactor(0.7)
-            Text(label).font(.caption2.weight(.medium)).tracking(1).foregroundStyle(TrainingStyle.lime.opacity(0.85))
+            Text(value).font(.largeTitle.weight(.semibold)).monospacedDigit().foregroundStyle(TrainingStyle.onFelt)
+            Text(label).font(.subheadline).foregroundStyle(TrainingStyle.onFelt).multilineTextAlignment(.center)
         }.frame(maxWidth: .infinity)
     }
     @ViewBuilder private var answerControls: some View {
@@ -132,30 +139,31 @@ struct DrillSessionView: View {
                     Button { submit(Double(value)) } label: {
                         Text(DrillPrompt.format(Double(value), signed: true)).font(.title2.weight(.semibold).monospacedDigit())
                             .frame(maxWidth: .infinity, minHeight: 70)
-                            .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 18))
-                            .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(TrainingStyle.border))
+                            .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
+                            .overlay(RoundedRectangle(cornerRadius: TrainingStyle.radius).strokeBorder(TrainingStyle.border))
                     }.buttonStyle(.plain).foregroundStyle(TrainingStyle.ink).accessibilityLabel("Answer \(value)")
                 }
             }
         } else if kind == .deckEstimation {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 10) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: textSize.isAccessibilitySize ? 2 : 3), spacing: 10) {
                 ForEach(1...12, id: \.self) { half in
                     let value = Double(half) / 2
                     Button { submit(value) } label: {
                         Text(DrillPrompt.format(value)).font(.title3.weight(.medium).monospacedDigit())
                             .frame(maxWidth: .infinity, minHeight: 51)
-                            .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 15))
-                            .overlay(RoundedRectangle(cornerRadius: 15).strokeBorder(TrainingStyle.border))
+                            .padding(.vertical, 6)
+                            .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
+                            .overlay(RoundedRectangle(cornerRadius: TrainingStyle.radius).strokeBorder(TrainingStyle.border))
                     }.buttonStyle(.plain).foregroundStyle(TrainingStyle.ink).accessibilityLabel("\(DrillPrompt.format(value)) decks")
                 }
             }
         } else {
             VStack(spacing: 13) {
                 Text(answer.isEmpty ? "—" : answer.replacingOccurrences(of: "-", with: "−"))
-                    .font(.system(size: 36, weight: .medium, design: .rounded)).monospacedDigit()
+                    .font(.largeTitle.weight(.medium)).monospacedDigit()
                     .foregroundStyle(answer.isEmpty ? TrainingStyle.secondary : TrainingStyle.ink)
-                    .frame(maxWidth: .infinity, minHeight: 65).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 19))
-                    .overlay(RoundedRectangle(cornerRadius: 19).strokeBorder(TrainingStyle.border))
+                    .frame(maxWidth: .infinity, minHeight: 65).padding(.vertical, 8).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
+                    .overlay(RoundedRectangle(cornerRadius: TrainingStyle.radius).strokeBorder(TrainingStyle.border))
                     .accessibilityLabel("Your answer: \(answer.isEmpty ? "empty" : answer)")
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3), spacing: 9) {
                     ForEach(1...9, id: \.self) { value in keypadButton(String(value)) { appendDigit(value) } }
@@ -164,18 +172,18 @@ struct DrillSessionView: View {
                     }
                     keypadButton("0") { appendDigit(0) }
                     Button { if !answer.isEmpty { answer.removeLast() } } label: {
-                        Image(systemName: "delete.left").font(.title3).frame(maxWidth: .infinity, minHeight: 47)
+                        Image(systemName: "delete.left").font(.title3).frame(maxWidth: .infinity, minHeight: 47).padding(.vertical, 6)
                     }.foregroundStyle(TrainingStyle.ink).buttonStyle(.plain).accessibilityLabel("Delete last digit")
                 }
                 Button { if let parsedAnswer { submit(parsedAnswer) } } label: { Label("Check count", systemImage: "checkmark") }
-                    .buttonStyle(TrainingPrimaryButton()).disabled(parsedAnswer == nil).opacity(parsedAnswer == nil ? 0.45 : 1)
+                    .buttonStyle(TrainingPrimaryButton()).disabled(parsedAnswer == nil)
             }
         }
     }
     private func keypadButton(_ text: String, label: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(text).font(.title2.weight(.regular)).monospacedDigit().frame(maxWidth: .infinity, minHeight: 47)
-                .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 14))
+            Text(text).font(.title2.weight(.regular)).monospacedDigit().frame(maxWidth: .infinity, minHeight: 47).padding(.vertical, 6)
+                .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
         }.foregroundStyle(TrainingStyle.ink).buttonStyle(.plain).accessibilityLabel(label ?? text)
     }
     private func appendDigit(_ value: Int) {
@@ -188,17 +196,17 @@ struct DrillSessionView: View {
         VStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: response.correct ? "checkmark.circle.fill" : "lightbulb")
-                    Text(response.correct ? "Right on." : "The count is \(response.prompt.formattedAnswer).")
+                    Image(systemName: response.correct ? "checkmark.circle.fill" : "info.circle")
+                    Text(response.correct ? "Correct" : "Correct answer: \(response.prompt.formattedAnswer)")
                         .font(.title3.weight(.semibold))
-                }.foregroundStyle(response.correct ? TrainingStyle.ink : TrainingStyle.coral)
+                }.foregroundStyle(response.correct ? TrainingStyle.accent : TrainingStyle.ink)
                 Text(response.prompt.explanation).font(.subheadline).foregroundStyle(TrainingStyle.secondary).lineSpacing(4)
                 if !response.correct {
                     Text("Your answer: \(DrillPrompt.format(response.answer, signed: kind != .deckEstimation))")
                         .font(.caption).foregroundStyle(TrainingStyle.secondary)
                 }
-            }.padding(21).frame(maxWidth: .infinity, alignment: .leading)
-                .background(TrainingStyle.soft, in: RoundedRectangle(cornerRadius: 22))
+            }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
+                .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
                 .accessibilityElement(children: .combine)
                 .accessibilityFocused($feedbackFocused)
             Button { advance() } label: {
@@ -209,34 +217,35 @@ struct DrillSessionView: View {
     private var pauseOverlay: some View {
         VStack(spacing: 22) {
             Image(systemName: "pause.circle").font(.system(size: 48, weight: .light)).foregroundStyle(TrainingStyle.ink)
-            Text("Take your time.").font(.title.bold()).foregroundStyle(TrainingStyle.ink)
-            Text("The timer is paused.").font(.subheadline).foregroundStyle(TrainingStyle.secondary)
+            Text("Paused").font(.title2.bold()).foregroundStyle(TrainingStyle.ink)
+            Text("The timer is paused.").font(.subheadline).foregroundStyle(TrainingStyle.secondary).multilineTextAlignment(.center)
             Button { resume() } label: { Label("Resume", systemImage: "play.fill") }.buttonStyle(TrainingPrimaryButton())
-        }.padding(28).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 26)).padding(24)
+        }.padding(24).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius)).padding(24)
             .shadow(color: .black.opacity(0.12), radius: 25, y: 12)
             .accessibilityElement(children: .contain).accessibilityAddTraits(.isModal)
     }
     private var result: some View {
         let summary = session.summary()
-        return VStack(spacing: 25) {
-            Image(systemName: summary.accuracy >= 0.9 ? "checkmark.seal" : "sparkles")
-                .font(.system(size: 54, weight: .light)).foregroundStyle(TrainingStyle.ink)
-                .frame(width: 116, height: 116).background(TrainingStyle.soft, in: Circle()).padding(.top, 15)
+        return VStack(spacing: 24) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 44)).foregroundStyle(TrainingStyle.accent).padding(.top, 16).accessibilityHidden(true)
             VStack(spacing: 9) {
-                Text(summary.accuracy == 1 ? "A clean count." : "One session sharper.")
-                    .font(.largeTitle.bold()).foregroundStyle(TrainingStyle.ink).multilineTextAlignment(.center)
-                Text(summary.nextSuggestion).font(.subheadline).foregroundStyle(TrainingStyle.secondary).multilineTextAlignment(.center)
+                Text("Session complete")
+                    .font(.title2.bold()).foregroundStyle(TrainingStyle.ink).multilineTextAlignment(.center)
+                Text(kind.title).font(.subheadline).foregroundStyle(TrainingStyle.secondary)
             }
-            HStack(spacing: 12) {
-                resultMetric("\(summary.accuracyPercent)%", label: "ACCURACY")
-                resultMetric("\(summary.correct)/\(summary.total)", label: "CORRECT")
-                resultMetric(String(format: "%.1fs", summary.secondsPerAnswer), label: "PER ANSWER")
-            }
+            VStack(spacing: 0) {
+                resultMetric("\(summary.accuracyPercent)%", label: "Accuracy")
+                Divider().overlay(TrainingStyle.border).padding(.horizontal, 16)
+                resultMetric("\(summary.correct) of \(summary.total)", label: "Correct answers")
+                Divider().overlay(TrainingStyle.border).padding(.horizontal, 16)
+                resultMetric(String(format: "%.1f s", summary.secondsPerAnswer), label: "Average time")
+            }.background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
             if !summary.mistakes.isEmpty {
                 Button { reviewingMistakes = true } label: {
-                    HStack { Image(systemName: "arrow.counterclockwise"); Text("Review \(summary.mistakes.count) \(summary.mistakes.count == 1 ? "miss" : "misses")"); Spacer(); Image(systemName: "chevron.right") }
-                        .font(.subheadline.weight(.semibold)).padding(20).foregroundStyle(TrainingStyle.ink)
-                        .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 18))
+                    HStack { Text("Review \(summary.mistakes.count) \(summary.mistakes.count == 1 ? "mistake" : "mistakes")"); Spacer(); Image(systemName: "chevron.right").font(.caption.weight(.semibold)) }
+                        .font(.body.weight(.medium)).multilineTextAlignment(.leading).padding(16).foregroundStyle(TrainingStyle.ink)
+                        .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
                 }.buttonStyle(.plain)
             }
             Button { finish() } label: { HStack { Text("Finish session"); Image(systemName: "checkmark") } }.buttonStyle(TrainingPrimaryButton())
@@ -244,10 +253,12 @@ struct DrillSessionView: View {
         }
     }
     private func resultMetric(_ value: String, label: String) -> some View {
-        VStack(spacing: 9) { Text(value).font(.title2.bold().monospacedDigit()).minimumScaleFactor(0.65); Text(label).font(.system(size: 9, weight: .semibold)).tracking(0.5) }
-            .foregroundStyle(TrainingStyle.ink).frame(maxWidth: .infinity).padding(.vertical, 22)
-            .background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 19))
-            .accessibilityElement(children: .combine)
+        let layout = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+        return layout {
+            Text(label).font(.body).foregroundStyle(TrainingStyle.secondary)
+            if !textSize.isAccessibilitySize { Spacer() }
+            Text(value).font(.body.weight(.semibold).monospacedDigit()).foregroundStyle(TrainingStyle.ink)
+        }.padding(16).frame(maxWidth: .infinity, alignment: .leading).accessibilityElement(children: .combine)
     }
     private func submit(_ value: Double) {
         guard !paused else { return }
@@ -288,28 +299,28 @@ private struct DeckStackIllustration: View {
     let decks: Double
     var body: some View {
         VStack(spacing: 18) {
-            Text("COMPARE THE STACKS").font(.caption2.weight(.medium)).tracking(1.2).foregroundStyle(TrainingStyle.lime.opacity(0.9))
-            HStack(alignment: .bottom, spacing: 35) {
+            Text("Compare the stacks").font(.subheadline).foregroundStyle(TrainingStyle.onFelt).multilineTextAlignment(.center)
+            HStack(alignment: .top, spacing: 35) {
                 VStack(spacing: 12) {
                     ZStack(alignment: .bottom) {
-                        RoundedRectangle(cornerRadius: 8).strokeBorder(TrainingStyle.lime.opacity(0.22), style: StrokeStyle(lineWidth: 1, dash: [4]))
-                        RoundedRectangle(cornerRadius: 7).fill(Color(red: 0.94, green: 0.94, blue: 0.86)).frame(height: 180 * decks / 6)
+                        RoundedRectangle(cornerRadius: 8).strokeBorder(TrainingStyle.onFelt.opacity(0.35), style: StrokeStyle(lineWidth: 1, dash: [4]))
+                        RoundedRectangle(cornerRadius: 7).fill(StudioTheme.cardPaper).frame(height: 180 * decks / 6)
                             .overlay(alignment: .bottom) {
-                                VStack(spacing: 2) { ForEach(0..<max(1, Int(decks * 8)), id: \.self) { _ in Rectangle().fill(TrainingStyle.forest.opacity(0.2)).frame(height: 1) } }.padding(.vertical, 2)
+                                VStack(spacing: 2) { ForEach(0..<max(1, Int(decks * 8)), id: \.self) { _ in Rectangle().fill(StudioTheme.cardInk.opacity(0.2)).frame(height: 1) } }.padding(.vertical, 2)
                             }
                     }.frame(width: 97, height: 180)
-                    Text("ESTIMATE").font(.caption2.weight(.semibold)).tracking(1).foregroundStyle(TrainingStyle.lime)
-                }
+                    Text("Estimate").font(.caption.weight(.medium)).foregroundStyle(TrainingStyle.onFelt).multilineTextAlignment(.center)
+                }.frame(width: 97)
                 VStack(spacing: 12) {
                     ZStack(alignment: .bottom) {
                         Color.clear
-                        RoundedRectangle(cornerRadius: 5).fill(TrainingStyle.lime).frame(height: 30)
+                        RoundedRectangle(cornerRadius: 5).fill(StudioTheme.cardPaper).frame(height: 30)
                     }.frame(width: 62, height: 180)
-                    Text("1 DECK").font(.caption2.weight(.semibold)).tracking(1).foregroundStyle(TrainingStyle.lime)
-                }
+                    Text("1 deck").font(.caption.weight(.medium)).foregroundStyle(TrainingStyle.onFelt).multilineTextAlignment(.center)
+                }.frame(width: 62)
             }
         }.padding(24).frame(maxWidth: .infinity)
-            .background(TrainingStyle.forest, in: RoundedRectangle(cornerRadius: 26))
+            .background(TrainingStyle.felt, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Simulated stack estimation. The stack contains \(Int(decks * 52)) cards. One deck contains 52. Enter the number of decks.")
             .accessibilityHint("A card-count description is provided as a nonvisual alternative to the stack-height exercise.")
@@ -319,24 +330,30 @@ private struct DeckStackIllustration: View {
 private struct MistakeReview: View {
     let summary: DrillSummary
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var textSize
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                     ForEach(summary.mistakes) { response in
                         VStack(alignment: .leading, spacing: 13) {
-                            Text("CHECK \(response.id + 1)").font(.caption.weight(.semibold)).tracking(1).foregroundStyle(TrainingStyle.secondary)
+                            Text("Question \(response.id + 1)").font(.subheadline).foregroundStyle(TrainingStyle.secondary)
                             if !response.prompt.cards.isEmpty {
                                 HStack(spacing: 9) { ForEach(Array(response.prompt.cards.enumerated()), id: \.offset) { _, card in TrainingCardFace(card: card, width: 45) } }
                             }
                             Text(response.prompt.explanation).font(.body).foregroundStyle(TrainingStyle.ink)
-                            HStack { Text("You: \(DrillPrompt.format(response.answer, signed: summary.kind != .deckEstimation))"); Spacer(); Text("Correct: \(response.prompt.formattedAnswer)").fontWeight(.semibold) }
+                            let layout = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+                            layout {
+                                Text("You: \(DrillPrompt.format(response.answer, signed: summary.kind != .deckEstimation))")
+                                if !textSize.isAccessibilitySize { Spacer() }
+                                Text("Correct: \(response.prompt.formattedAnswer)").fontWeight(.semibold)
+                            }
                                 .font(.subheadline).foregroundStyle(TrainingStyle.secondary)
-                        }.padding(20).frame(maxWidth: .infinity, alignment: .leading).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: 20))
+                        }.padding(20).frame(maxWidth: .infinity, alignment: .leading).background(TrainingStyle.surface, in: RoundedRectangle(cornerRadius: TrainingStyle.radius))
                     }
                 }.padding(20).frame(maxWidth: 600).frame(maxWidth: .infinity)
-            }.background(TrainingStyle.background).navigationTitle("Make it stick").navigationBarTitleDisplayMode(.inline)
+            }.background(TrainingStyle.background).navigationTitle("Mistakes").navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
-        }.tint(TrainingStyle.ink)
+        }.tint(TrainingStyle.accent)
     }
 }

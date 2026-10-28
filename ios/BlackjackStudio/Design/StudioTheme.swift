@@ -2,62 +2,80 @@ import SwiftUI
 import UIKit
 import BlackjackCore
 
+/// App surfaces follow iOS appearance, elevation, and accessibility contrast.
+/// Felt and card stock are materials; their colors remain legible in either mode.
 enum StudioTheme {
-    static func adaptive(_ light: UInt32, _ dark: UInt32) -> Color {
+    static let radius: CGFloat = 16
+    static func adaptive(_ light: UInt32, _ dark: UInt32, highContrastLight: UInt32? = nil, highContrastDark: UInt32? = nil) -> Color {
         Color(uiColor: UIColor { traits in
-            let value = traits.userInterfaceStyle == .dark ? dark : light
+            let darkMode = traits.userInterfaceStyle == .dark
+            let value: UInt32
+            if traits.accessibilityContrast == .high {
+                value = darkMode ? (highContrastDark ?? dark) : (highContrastLight ?? light)
+            } else { value = darkMode ? dark : light }
             return UIColor(red: CGFloat((value >> 16) & 255) / 255, green: CGFloat((value >> 8) & 255) / 255, blue: CGFloat(value & 255) / 255, alpha: 1)
         })
     }
-    static let background = adaptive(0xF6F7F1, 0x0F1D17)
-    static let surface = adaptive(0xFFFFFF, 0x192B22)
-    static let ink = adaptive(0x1C3328, 0xF0F4E8)
-    static let muted = adaptive(0x667561, 0xA8B8A6)
-    static let line = adaptive(0xE3E9DB, 0x2C4132)
-    static let soft = adaptive(0xEDF2E3, 0x233B2A)
-    static let forest = Color(red: 0.08, green: 0.24, blue: 0.18)
-    static let lime = Color(red: 0.87, green: 0.93, blue: 0.70)
-    static let accent = adaptive(0x2C6045, 0xCEE4A7)
-    static let red = adaptive(0xA44439, 0xF2A697)
-    static let amber = adaptive(0x806322, 0xE6C984)
+    static let background = Color(uiColor: .systemGroupedBackground)
+    static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+    static let soft = Color(uiColor: .tertiarySystemGroupedBackground)
+    static let ink = Color(uiColor: .label)
+    static let muted = adaptive(0x636366, 0xAEAEB2, highContrastLight: 0x3A3A3C, highContrastDark: 0xD1D1D6)
+    static let line = adaptive(0xD8D8DC, 0x38383A, highContrastLight: 0x8E8E93, highContrastDark: 0x8E8E93)
+    static let accent = adaptive(0x326348, 0xA7C9B0, highContrastLight: 0x214E35, highContrastDark: 0xC6E9CE)
+    static let buttonFill = adaptive(0x202321, 0xF2F2F7)
+    static let buttonText = adaptive(0xFFFFFF, 0x1C1C1E)
+    static let red = adaptive(0xA84038, 0xFFAAA3)
+    static let amber = adaptive(0x765C1B, 0xDEC183)
+
+    static let felt = adaptive(0x164331, 0x10291E)
+    static let onFelt = Color(red: 0.95, green: 0.96, blue: 0.91)
+    static let cardPaper = Color(red: 0.98, green: 0.98, blue: 0.95)
+    static let cardInk = Color(red: 0.10, green: 0.22, blue: 0.17)
+    static let cardRed = Color(red: 0.66, green: 0.25, blue: 0.22)
+    // Kept as material aliases for table art and existing card illustrations.
+    static let forest = felt
+    static let lime = onFelt
 }
 
 struct StudioPrimaryButton: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
     var light = false
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded)).frame(maxWidth: .infinity).padding(.vertical, 17)
-            .foregroundStyle(light ? StudioTheme.forest : .white)
-            .background(light ? StudioTheme.lime : StudioTheme.forest, in: RoundedRectangle(cornerRadius: 18))
-            .opacity(configuration.isPressed ? 0.78 : 1)
-            .contentShape(RoundedRectangle(cornerRadius: 18))
+            .font(.headline).padding(.horizontal, 16).padding(.vertical, 14)
+            .frame(maxWidth: .infinity).frame(minHeight: 52)
+            .foregroundStyle(light ? StudioTheme.cardInk : StudioTheme.buttonText)
+            .background(light ? StudioTheme.cardPaper : StudioTheme.buttonFill, in: RoundedRectangle(cornerRadius: 12))
+            .opacity(isEnabled ? (configuration.isPressed ? 0.78 : 1) : 0.38)
+            .contentShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
 struct StudioCard<Content: View>: View {
     @ViewBuilder var content: Content
     var body: some View {
-        content.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-            .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: 24))
-            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(StudioTheme.line, lineWidth: 1))
+        content.padding(18).frame(maxWidth: .infinity, alignment: .leading)
+            .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
     }
 }
 
 struct Eyebrow: View {
     var text: String
     var body: some View {
-        Text(text.uppercased()).font(.system(.caption2, design: .rounded).weight(.bold))
-            .tracking(2).foregroundStyle(StudioTheme.muted).accessibilityAddTraits(.isHeader)
+        Text(text).font(.caption.weight(.medium)).foregroundStyle(StudioTheme.muted)
     }
 }
 
 struct SectionTitle: View {
     var title: String
     var caption: String? = nil
+    @Environment(\.dynamicTypeSize) private var textSize
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title).font(.system(.title3, design: .rounded).weight(.bold)).foregroundStyle(StudioTheme.ink)
-            Spacer()
+        let layout = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 5)) : AnyLayout(HStackLayout(alignment: .firstTextBaseline))
+        layout {
+            Text(title).font(.headline).foregroundStyle(StudioTheme.ink).accessibilityAddTraits(.isHeader)
+            if !textSize.isAccessibilitySize { Spacer() }
             if let caption { Text(caption).font(.caption).foregroundStyle(StudioTheme.muted) }
         }.accessibilityElement(children: .combine)
     }
@@ -65,9 +83,8 @@ struct SectionTitle: View {
 
 struct ProBadge: View {
     var body: some View {
-        Text("PRO").font(.system(.caption2, design: .rounded).weight(.heavy)).tracking(1)
-            .padding(.horizontal, 8).padding(.vertical, 5).foregroundStyle(StudioTheme.accent)
-            .background(StudioTheme.soft, in: Capsule()).accessibilityLabel("Pro feature")
+        Text("Pro").font(.caption.weight(.medium)).foregroundStyle(StudioTheme.muted)
+            .accessibilityLabel("Pro feature")
     }
 }
 
@@ -77,13 +94,13 @@ struct NativePlayingCard: View {
     var width: CGFloat = 76
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: width * 0.11).fill(Color(red: 0.98, green: 0.98, blue: 0.94))
+            RoundedRectangle(cornerRadius: width * 0.09).fill(StudioTheme.cardPaper)
             if faceDown || card == nil {
-                RoundedRectangle(cornerRadius: width * 0.075).fill(StudioTheme.forest).padding(5)
-                RoundedRectangle(cornerRadius: width * 0.05).stroke(StudioTheme.lime.opacity(0.35), lineWidth: 1).padding(9)
-                Image(systemName: "suit.spade.fill").font(.system(size: width * 0.32)).foregroundStyle(StudioTheme.lime)
+                RoundedRectangle(cornerRadius: width * 0.06).fill(StudioTheme.cardInk).padding(4)
+                RoundedRectangle(cornerRadius: width * 0.04).stroke(StudioTheme.cardPaper.opacity(0.3), lineWidth: 1).padding(8)
+                Image(systemName: "suit.spade.fill").font(.system(size: width * 0.28)).foregroundStyle(StudioTheme.cardPaper.opacity(0.85))
             } else if let card {
-                let color: Color = card.suit.isRed ? Color(red: 0.69, green: 0.26, blue: 0.24) : StudioTheme.forest
+                let color = card.suit.isRed ? StudioTheme.cardRed : StudioTheme.cardInk
                 Text(card.suit.symbol).font(.system(size: width * 0.45, design: .serif)).foregroundStyle(color)
                 VStack {
                     HStack { corner(card, color); Spacer() }
@@ -92,7 +109,7 @@ struct NativePlayingCard: View {
                 }.padding(width * 0.09)
             }
         }.frame(width: width, height: width * 1.42)
-            .shadow(color: .black.opacity(0.12), radius: 7, x: 0, y: 4)
+            .shadow(color: .black.opacity(0.14), radius: 2, x: 0, y: 1)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(faceDown || card == nil ? "Face-down card" : card!.accessibilityLabel)
     }
@@ -106,7 +123,7 @@ struct NativePlayingCard: View {
 
 struct ProgressRing: View {
     var progress: Double
-    var lineWidth: CGFloat = 6
+    var lineWidth: CGFloat = 4
     var body: some View {
         ZStack {
             Circle().stroke(StudioTheme.line, lineWidth: lineWidth)
@@ -120,12 +137,11 @@ struct EmptyState: View {
     var title: String
     var message: String
     var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: symbol).font(.system(size: 30, weight: .light)).foregroundStyle(StudioTheme.accent)
-                .frame(width: 76, height: 76).background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 24))
-            Text(title).font(.system(.title3, design: .rounded).weight(.bold)).foregroundStyle(StudioTheme.ink)
+        VStack(spacing: 10) {
+            Image(systemName: symbol).font(.title2).foregroundStyle(StudioTheme.muted).padding(.bottom, 4)
+            Text(title).font(.headline).foregroundStyle(StudioTheme.ink)
             Text(message).font(.subheadline).foregroundStyle(StudioTheme.muted).multilineTextAlignment(.center)
-        }.frame(maxWidth: .infinity).padding(.vertical, 32)
+        }.frame(maxWidth: .infinity).padding(.vertical, 25)
     }
 }
 

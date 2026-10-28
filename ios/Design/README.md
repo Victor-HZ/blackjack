@@ -1,23 +1,25 @@
-# iOS design review
+# iOS design preview
 
-Open `preview.html` in a browser. It is self-contained, works offline, and requires no build step or external assets.
+Open [preview.html](preview.html) directly in a browser. It is self-contained, works offline, and requires no build or external assets.
 
-**This is an interactive design prototype, not the native iOS app, an iOS Simulator recording, or App Store screenshots.** It recreates the visual direction of the current SwiftUI source. Native rendering, device behavior, and accessibility still need to be checked with Xcode on real iPhones or the iOS Simulator.
+This is an **interactive design prototype**, not a compiled iOS app, Simulator capture, or App Store screenshot. The intended SwiftUI implementation lives in `ios/BlackjackStudio`.
 
-The four phone frames show:
+The four initial frames show:
 
-1. A focused training dashboard and next-session recommendation.
-2. A working miniature card-value drill with correct/incorrect feedback and a result screen.
-3. Progress with explicitly illustrative sample data.
-4. The one-time Pro offer. The displayed $19.99 is an illustrative local StoreKit test price; there is no payment in this artifact. The native app obtains its price from StoreKit.
+- Practice: a daily goal, one session, and a grouped skill library.
+- Card values: a working 15-card Hi-Lo drill, including pause, feedback, results, and restart.
+- Progress: illustrative session and accuracy data.
+- Pro: a one-time unlock with an illustrative $19.99 price. No purchase occurs here.
 
-Try each phone's tabs, the counting answers, pause/resume, and the light/dark toggle. Preview notices appear outside the phone frames. The table and purchase views are visual review surfaces; the actual game engine and transaction handling live in the native app.
+Appearance defaults to **System** and follows the operating system live, including true-black dark backgrounds. **Light** and **Dark** provide temporary preview overrides; choose **System** to resume automatic switching. Changing appearance preserves the current question, score, and screen. Card faces stay cream in both appearances. Reduced-motion preferences disable transitions.
 
-The native implementation remains the source of truth:
+Use the tabs to review lessons and the practice table. Only the card-value drill is a working training interaction in this HTML; the table, settings, other drills, and purchase controls show preview information. Progress and lesson completion are sample data, not persisted practice records.
 
-- `../BlackjackStudio/Features/TrainScreen.swift`
-- `../BlackjackStudio/Training/DrillSessionView.swift`
-- `../BlackjackStudio/Features/ProgressScreen.swift`
-- `../BlackjackStudio/Commerce/PaywallView.swift`
+The preview follows the shared native palette and restrained grouped layouts in:
 
-Do not submit this artifact or captures of it as App Store screenshots. Capture the compiled app on supported Apple devices for release materials.
+- [TrainScreen.swift](../BlackjackStudio/Features/TrainScreen.swift)
+- [DrillSessionView.swift](../BlackjackStudio/Training/DrillSessionView.swift)
+- [ProgressScreen.swift](../BlackjackStudio/Features/ProgressScreen.swift)
+- [PaywallView.swift](../BlackjackStudio/Commerce/PaywallView.swift)
+
+Browser regressions in `e2e/ios-design.spec.ts` cover automatic and manual appearance, live state preservation, contrast, narrow layouts, reduced motion, and drill/navigation behavior. They do not validate native SwiftUI rendering; that requires Xcode and an Apple SDK.

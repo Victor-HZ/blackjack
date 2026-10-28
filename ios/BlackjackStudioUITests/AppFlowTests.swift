@@ -44,7 +44,7 @@ final class AppFlowTests: XCTestCase {
         app.launchArguments = ["--ui-testing", "--skip-onboarding"]
         app.launch()
         app.tabBars.buttons["Progress"].tap()
-        XCTAssertTrue(app.staticTexts["See yourself improve."].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.navigationBars["Progress"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["progress.sessions"].label.contains("1"))
     }
     func testPauseHidesTheQuestionAndResumesWithoutEndingTheSession() {
@@ -79,7 +79,7 @@ final class AppFlowTests: XCTestCase {
         let premium = app.buttons["drill-pairs"]
         XCTAssertTrue(premium.waitForExistence(timeout: 10)); reveal(premium); premium.tap()
         XCTAssertTrue(app.buttons["paywall.purchase"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Your complete counting toolkit.\nOne payment. No subscription."].exists)
+        XCTAssertTrue(app.staticTexts["One purchase. No subscription."].exists)
         app.buttons["paywall.close"].tap()
         XCTAssertTrue(app.tabBars.buttons["Train"].waitForExistence(timeout: 3))
     }
@@ -100,12 +100,16 @@ final class AppFlowTests: XCTestCase {
         XCTAssertTrue(recommendation.label.contains("Split"))
     }
     func testCaptureRepresentativeNativeScreens() {
-        app.launch()
-        XCTAssertTrue(app.buttons["startSession"].waitForExistence(timeout: 10))
-        attach("01-train")
-        app.tabBars.buttons["Learn"].tap(); attach("02-learn")
-        app.tabBars.buttons["Table"].tap(); attach("03-table")
-        app.tabBars.buttons["Progress"].tap(); attach("04-progress")
+        for appearance in ["Light", "Dark"] {
+            app.launchArguments = ["--ui-testing", "--reset-state", "--skip-onboarding", "-AppleInterfaceStyle", appearance]
+            app.launch()
+            XCTAssertTrue(app.buttons["startSession"].waitForExistence(timeout: 10))
+            attach("\(appearance)-01-practice")
+            app.tabBars.buttons["Learn"].tap(); attach("\(appearance)-02-lessons")
+            app.tabBars.buttons["Table"].tap(); attach("\(appearance)-03-table")
+            app.tabBars.buttons["Progress"].tap(); attach("\(appearance)-04-progress")
+            app.terminate()
+        }
     }
     private func reveal(_ element: XCUIElement) {
         for _ in 0..<6 where !element.isHittable { app.swipeUp() }

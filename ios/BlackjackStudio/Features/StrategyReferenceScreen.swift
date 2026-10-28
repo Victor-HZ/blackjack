@@ -27,13 +27,6 @@ struct StrategyReferenceScreen: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    VStack(alignment: .leading, spacing: 9) {
-                        Eyebrow(text: "THE RIGHT MOVE")
-                        Text("Build a better instinct.")
-                            .font(.system(.largeTitle, design: .rounded).weight(.bold))
-                            .foregroundStyle(StudioTheme.ink)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
                     lookupCard.id("strategy.lookup")
                     chartCard { row, dealer in
                         firstRank = row.cards[0].rank
@@ -71,10 +64,9 @@ struct StrategyReferenceScreen: View {
                         Image(systemName: lookupAdvice.move.symbol)
                             .font(.title3.weight(.semibold))
                             .frame(width: 43, height: 43)
-                            .background(StudioTheme.lime, in: RoundedRectangle(cornerRadius: 14))
-                            .foregroundStyle(StudioTheme.forest)
+                            .foregroundStyle(StudioTheme.accent)
                         Text(lookupAdvice.move.title)
-                            .font(.system(.title2, design: .rounded).weight(.bold))
+                            .font(.title2.weight(.semibold))
                             .foregroundStyle(StudioTheme.ink)
                     }
                     Text(lookupAdvice.reason)
@@ -84,7 +76,7 @@ struct StrategyReferenceScreen: View {
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 19))
+                .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 12))
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("strategy.recommendation")
                 .accessibilityFocused($recommendationFocused)
@@ -109,8 +101,8 @@ struct StrategyReferenceScreen: View {
             .labelsHidden()
             .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
             .padding(.horizontal, 12)
-            .background(StudioTheme.background, in: RoundedRectangle(cornerRadius: 14))
-            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(StudioTheme.line))
+            .background(StudioTheme.background, in: RoundedRectangle(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(StudioTheme.line))
             .accessibilityLabel(title)
             .accessibilityIdentifier(identifier)
         }
@@ -120,30 +112,28 @@ struct StrategyReferenceScreen: View {
     private func chartCard(onSelect: @escaping (StrategyChartRow, Rank) -> Void) -> some View {
         StudioCard {
             VStack(alignment: .leading, spacing: 17) {
-                SectionTitle(title: "Your playbook")
+                SectionTitle(title: "Basic strategy")
                 chartPicker
                 Text(chartKind.explanation)
                     .font(.footnote).foregroundStyle(StudioTheme.muted)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
                     Spacer().frame(width: labelWidth)
-                    Text("DEALER’S UPCARD")
-                        .font(.system(.caption2, design: .rounded).weight(.bold))
-                        .tracking(1.3).foregroundStyle(StudioTheme.muted)
+                    Text("Dealer’s upcard")
+                        .font(.caption.weight(.medium)).foregroundStyle(StudioTheme.muted)
                         .frame(maxWidth: .infinity)
                 }
                 HStack(alignment: .top, spacing: 4) {
                     // The hand column stays visible while the dealer columns scroll on a phone.
                     VStack(spacing: 4) {
-                        Text("YOU")
-                            .font(.caption2.weight(.bold))
-                            .tracking(1)
+                        Text("Hand")
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(StudioTheme.muted)
                             .frame(width: labelWidth, height: cellHeight)
                         ForEach(rows) { row in
                             Text(row.label)
                                 .lineLimit(1).minimumScaleFactor(0.65)
-                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                .font(.subheadline.weight(.semibold))
                                 .monospacedDigit()
                                 .foregroundStyle(StudioTheme.ink)
                                 .frame(width: labelWidth, height: cellHeight)
@@ -156,7 +146,7 @@ struct StrategyReferenceScreen: View {
                             HStack(spacing: 4) {
                                 ForEach(dealerRanks, id: \.self) { rank in
                                     Text(rank.rawValue)
-                                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                                        .font(.subheadline.weight(.semibold))
                                         .monospacedDigit()
                                         .foregroundStyle(StudioTheme.muted)
                                         .frame(width: cellWidth, height: cellHeight)
@@ -207,7 +197,7 @@ struct StrategyReferenceScreen: View {
         let selected = row.cards[0].rank == firstRank && row.cards[1].rank == secondRank && dealer == dealerRank
         return Button(action: onSelect) {
             Text(StrategyChartStyle.letter(advice.move))
-                .font(.system(.subheadline, design: .rounded).weight(.bold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(StrategyChartStyle.foreground(advice.move))
                 .frame(width: cellWidth, height: cellHeight)
                 .background(StrategyChartStyle.background(advice.move), in: RoundedRectangle(cornerRadius: 9))
@@ -330,7 +320,7 @@ private enum StrategyChartStyle {
         switch move {
         case .hit: return StudioTheme.soft
         case .stand: return StudioTheme.forest
-        case .doubleDown: return StudioTheme.lime
+        case .doubleDown: return StudioTheme.adaptive(0xE0EBE3, 0x293E30)
         case .split: return StudioTheme.adaptive(0xE3ECF7, 0x263D53)
         case .surrender: return StudioTheme.adaptive(0xF4E9D6, 0x473A25)
         }
@@ -339,7 +329,7 @@ private enum StrategyChartStyle {
         switch move {
         case .hit: return StudioTheme.ink
         case .stand: return .white
-        case .doubleDown: return StudioTheme.forest
+        case .doubleDown: return StudioTheme.accent
         case .split: return StudioTheme.adaptive(0x31526E, 0xC4DEF4)
         case .surrender: return StudioTheme.adaptive(0x775522, 0xF0D7A9)
         }

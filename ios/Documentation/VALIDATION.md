@@ -1,6 +1,6 @@
 # Validation record
 
-Validated in the Linux cloud workspace on 2026-10-27 (America/Toronto).
+Validated in the Linux cloud workspace. UI refinement checks repeated on 2026-10-28 (UTC).
 
 ## Executed
 
@@ -16,17 +16,17 @@ Validated in the Linux cloud workspace on 2026-10-27 (America/Toronto).
 | App assets | All iPhone/iPad/App Store icon entries generated; 1024px marketing icon opaque |
 | Local StoreKit file | JSON parsed; product schema checked against Apple's official sample; bundled only in UI tests |
 | Release validator | Positive isolated configuration fixture passes; default publisher placeholders correctly fail |
-| Design prototype | Chromium desktop/mobile checks pass, no page errors, working drill/navigation/dark mode, no 390px overflow |
+| Design prototype | Seven Playwright checks pass: live system switching at 1440/390px without losing drill state, appearance overrides, primary-action contrast in both modes, complete scored drill/navigation, offline interaction, and reduced motion; no 390px overflow |
 
-The existing web app was previously verified with 50 Vitest tests, 10 browser tests, and a production build. Its application source was not changed for this native implementation.
+The existing web app was rechecked with 50 passing Vitest tests and a production build. All 17 browser checks pass (10 web app + 7 design prototype). Its application source was not changed for this UI refinement. The prototype’s primary-action text contrast is at least 15.25:1; this browser measurement does not substitute for native accessibility validation. Both overview PNGs were refreshed and visually inspected.
 
 ## Not executed
 
 - Apple SDK type checking or native app compilation.
 - iOS Simulator/device rendering, performance, VoiceOver, Dynamic Type, or Reduce Motion validation.
-- Nine native XCUITest/StoreKitTest scenarios. They are implemented for the first Xcode run, not reported as passed.
+- Nine native XCUITest/StoreKitTest scenarios. They are implemented for the first Xcode run, not reported as passed. The capture scenario now requests both Light and Dark appearance; updated flow assertions match the simplified headings.
 - Sandbox/TestFlight purchases, reinstall/other-device restoration, pending purchases, refunds, or offline entitlement behavior against Apple's live sandbox.
-- macOS GitHub Actions. The workflow has not been pushed or triggered.
+- macOS GitHub Actions results. The workflow is committed, but the current API proxy does not expose its remote run status.
 - Signing, archive upload, publication, App Review, or fresh-task cloud-environment restoration.
 - Current Apple policy/statute/competitor page review; those domains were blocked during research. Official Apple GitHub StoreKit examples were accessible and examined.
 

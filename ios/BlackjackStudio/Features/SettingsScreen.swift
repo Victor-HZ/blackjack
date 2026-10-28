@@ -21,22 +21,22 @@ struct SettingsScreen: View {
             Form {
                 Section {
                     HStack(spacing: 14) {
-                        Image(systemName: "suit.spade.fill").font(.title).frame(width: 55, height: 55).foregroundStyle(StudioTheme.lime).background(StudioTheme.forest, in: RoundedRectangle(cornerRadius: 18))
+                        Image(systemName: "suit.spade.fill").font(.title2).frame(width: 40, height: 40).foregroundStyle(StudioTheme.accent)
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Blackjack Studio").font(.headline)
-                            Text(purchases.hasPro ? "Pro · Yours to keep" : "Your personal practice space").font(.subheadline).foregroundStyle(StudioTheme.muted)
+                            Text(purchases.hasPro ? "Pro unlocked" : "Free edition").font(.subheadline).foregroundStyle(StudioTheme.muted)
                         }
                     }.padding(.vertical, 6)
-                    if !purchases.hasPro { Button { showUpgrade = true } label: { Label("Explore Pro", systemImage: "sparkles") } }
+                    if !purchases.hasPro { Button { showUpgrade = true } label: { Label("Blackjack Studio Pro", systemImage: "lock.open") } }
                     Button { Task { await purchases.restore(); restoreFeedback = purchases.statusMessage ?? purchases.errorMessage } } label: {
                         HStack { Text("Restore purchases"); Spacer(); if purchases.isRestoring { ProgressView() } }
                     }.disabled(purchases.isRestoring || purchases.isPurchasing)
                 }
-                Section("Your practice") {
+                Section("Practice") {
                     Picker("Daily goal", selection: $model.snapshot.preferences.dailyMinutes) {
                         ForEach([3, 5, 10], id: \.self) { Text("\($0) minutes").tag($0) }
                     }
-                    Toggle("Gentle haptics", isOn: $model.snapshot.preferences.haptics)
+                    Toggle("Haptics", isOn: $model.snapshot.preferences.haptics)
                     Toggle("Daily reminder", isOn: Binding(get: { model.snapshot.preferences.reminderEnabled }, set: { enabled in
                         reminderBusy = true
                         Task { let success = await model.setReminder(enabled); reminderBusy = false; if !success { reminderDenied = true } }
@@ -60,7 +60,7 @@ struct SettingsScreen: View {
                     HStack { Text("Version"); Spacer(); Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0").foregroundStyle(StudioTheme.muted) }
                 }
             }.scrollContentBackground(.hidden).background(StudioTheme.background).foregroundStyle(StudioTheme.ink)
-                .navigationTitle("Your studio").navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Settings").navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
                 .sheet(isPresented: $showUpgrade) { PaywallView() }
                 .sheet(item: $legalDocument) { CommerceLegalView(document: $0) }
@@ -91,8 +91,7 @@ struct SettingsScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Image(systemName: "brain.head.profile").font(.system(size: 44, weight: .light)).foregroundStyle(StudioTheme.accent)
-                    Text("Train your mind.\nLeave the app off the table.").font(.system(.title, design: .rounded).weight(.bold))
+                    Text("Practice only").font(.title2.weight(.semibold))
                     Text("All cards here are simulated. This app teaches mental arithmetic and decision-making, not live gambling assistance.").font(.body).foregroundStyle(StudioTheme.muted)
                     StudioCard {
                         VStack(alignment: .leading, spacing: 14) {

@@ -32,14 +32,20 @@ struct TableScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 22) {
-                header
+            VStack(alignment: .leading, spacing: 16) {
                 scoreStrip
                 feltTable
-                coachingCard
-                if purchases.hasPro { countingCard }
+                StudioCard {
+                    VStack(alignment: .leading, spacing: 18) {
+                        coachingCard
+                        if purchases.hasPro {
+                            Divider().overlay(StudioTheme.line)
+                            countingCard
+                        }
+                    }
+                }
                 if canRecall { recallCard }
-                Label("Simulated cards. Practice points only.", systemImage: "checkmark.shield")
+                Text("Simulated cards. Practice points only.")
                     .font(.caption).foregroundStyle(StudioTheme.muted)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 6)
@@ -50,7 +56,7 @@ struct TableScreen: View {
         }
         .background(StudioTheme.background)
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("Table")
+        .navigationTitle("Practice table")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbar }
         .safeAreaInset(edge: .bottom, spacing: 0) { actionDock }
@@ -78,38 +84,28 @@ struct TableScreen: View {
         .tint(StudioTheme.accent)
     }
 
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Eyebrow(text: "PUT IT INTO PRACTICE")
-            Text("One hand.\nA better decision.")
-                .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                .tracking(-1).foregroundStyle(StudioTheme.ink)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
     @ViewBuilder private var scoreStrip: some View {
         if typeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: 14) { scoreValues }
-                .padding(20).frame(maxWidth: .infinity, alignment: .leading)
-                .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+                .padding(16).frame(maxWidth: .infinity, alignment: .leading)
+                .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
         } else {
             HStack(alignment: .top, spacing: 14) { scoreValues }
-                .padding(20).frame(maxWidth: .infinity)
-                .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: 22))
+                .padding(16).frame(maxWidth: .infinity)
+                .background(StudioTheme.surface, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
         }
     }
 
     @ViewBuilder private var scoreValues: some View {
         tableStat("Practice points", value: points(game.bankrollCents))
-        tableStat("Strategy", value: model.snapshot.accuracy.map { "\(Int(($0 * 100).rounded()))%" } ?? "—")
+        tableStat("Accuracy", value: model.snapshot.accuracy.map { "\(Int(($0 * 100).rounded()))%" } ?? "—")
         tableStat("Hands", value: game.rounds.formatted())
     }
 
     private func tableStat(_ title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.caption).foregroundStyle(StudioTheme.muted)
-            Text(value).font(.system(.title2, design: .rounded, weight: .semibold))
+            Text(value).font(.title2.weight(.semibold))
                 .monospacedDigit().foregroundStyle(StudioTheme.ink)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -117,67 +113,57 @@ struct TableScreen: View {
     }
 
     private var feltTable: some View {
-        VStack(spacing: 23) {
-            HStack(alignment: .top) {
-                Text(game.rules.summary).font(.caption2.weight(.medium))
-                Spacer(minLength: 10)
-                Label("\(game.decksRemaining.formatted(.number.precision(.fractionLength(1)))) decks", systemImage: "square.stack.3d.up")
-                    .font(.caption2)
+        VStack(spacing: 20) {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) {
+                    Text(game.rules.summary)
+                    Spacer(minLength: 0)
+                    Text("\(game.decksRemaining.formatted(.number.precision(.fractionLength(1)))) decks left")
+                }
+                VStack(spacing: 6) {
+                    Text(game.rules.summary)
+                    Text("\(game.decksRemaining.formatted(.number.precision(.fractionLength(1)))) decks left")
+                }
             }
-            .foregroundStyle(StudioTheme.lime.opacity(0.85))
+            .font(.caption)
+            .foregroundStyle(StudioTheme.onFelt.opacity(0.8))
             .padding(.horizontal, 20)
 
             dealerHand
 
-            VStack(spacing: 8) {
-                HStack(spacing: 12) {
-                    Rectangle().fill(StudioTheme.lime.opacity(0.25)).frame(width: 38, height: 1)
-                    Image(systemName: "suit.spade.fill").font(.caption)
-                    Rectangle().fill(StudioTheme.lime.opacity(0.25)).frame(width: 38, height: 1)
-                }
-                Text("BLACKJACK PAYS \(game.rules.blackjackPayout.rawValue)")
-                    .font(.system(.caption2, design: .rounded).weight(.medium)).tracking(2)
-            }
-            .foregroundStyle(StudioTheme.lime.opacity(0.8))
-            .accessibilityHidden(true)
+            Rectangle().fill(StudioTheme.onFelt.opacity(0.16))
+                .frame(height: 1).padding(.horizontal, 24).accessibilityHidden(true)
 
             playerHands
 
             if game.phase == .settled {
-                Label(settlementText, systemImage: (game.history.last?.profitCents ?? 0) > 0 ? "checkmark.circle" : "equal.circle")
+                Label(settlementText, systemImage: settlementSymbol)
                     .font(.subheadline.weight(.medium)).multilineTextAlignment(.center)
-                    .foregroundStyle(StudioTheme.lime)
-                    .padding(.horizontal, 18).padding(.vertical, 10)
-                    .background(.white.opacity(0.08), in: Capsule())
+                    .foregroundStyle(StudioTheme.onFelt)
                     .padding(.horizontal, 20)
                     .accessibilityIdentifier("table.result")
             }
         }
         .padding(.vertical, 22)
         .frame(maxWidth: .infinity)
-        .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: 28).fill(StudioTheme.forest.gradient)
-                Ellipse().stroke(StudioTheme.lime.opacity(0.1), lineWidth: 1)
-                    .padding(.horizontal, 15).padding(.vertical, 44)
-            }
-        }
-        .clipShape(RoundedRectangle(cornerRadius: 28))
+        .background(StudioTheme.felt, in: RoundedRectangle(cornerRadius: StudioTheme.radius))
+        .clipShape(RoundedRectangle(cornerRadius: StudioTheme.radius))
     }
 
     private var dealerHand: some View {
         VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                Text("DEALER").font(.caption2.weight(.semibold)).tracking(2)
+            let labelLayout = typeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(spacing: 6))
+                : AnyLayout(HStackLayout(spacing: 8))
+            labelLayout {
+                Text("Dealer").font(.subheadline.weight(.semibold))
                 if !game.dealer.isEmpty {
                     Text("\(game.dealerValue.total)\(game.holeRevealed ? "" : " + ?")")
-                        .font(.caption.weight(.medium)).monospacedDigit()
-                        .padding(.horizontal, 8).padding(.vertical, 4)
-                        .background(.white.opacity(0.1), in: Capsule())
+                        .font(.subheadline).monospacedDigit()
                         .accessibilityLabel(game.holeRevealed ? "Dealer total \(game.dealerValue.total)" : "Dealer shows \(game.dealerValue.total); one card is face down")
                 }
             }
-            .foregroundStyle(StudioTheme.lime)
+            .foregroundStyle(StudioTheme.onFelt)
             ViewThatFits(in: .horizontal) {
                 dealerCards
                 ScrollView(.horizontal) { dealerCards.padding(.horizontal, 20) }.scrollIndicators(.hidden)
@@ -208,7 +194,7 @@ struct TableScreen: View {
                     placeholderCard("suit.spade")
                     placeholderCard("suit.club")
                 }
-                Text("Your seat is ready.").font(.subheadline).foregroundStyle(StudioTheme.lime.opacity(0.85))
+                Text("Choose a stake and deal.").font(.subheadline).foregroundStyle(StudioTheme.onFelt.opacity(0.85))
             }
             .padding(.vertical, 10)
         } else if game.hands.count == 1, let hand = game.hands.first {
@@ -236,30 +222,34 @@ struct TableScreen: View {
     private func handView(_ hand: PlayerHand, index: Int) -> some View {
         let active = game.phase == .playing && index == game.activeHand
         let cardWidth: CGFloat = game.hands.count > 1 ? 62 : 76
-        return VStack(spacing: 11) {
+        return VStack(spacing: 10) {
+            let labelLayout = typeSize.isAccessibilitySize
+                ? AnyLayout(VStackLayout(spacing: 6))
+                : AnyLayout(HStackLayout(spacing: 8))
+            labelLayout {
+                Text(game.hands.count > 1 ? "Hand \(index + 1)" : "Your hand")
+                    .font(.subheadline.weight(.semibold))
+                Text("\(hand.value.total)\(hand.value.soft ? " soft" : "")")
+                    .font(.subheadline).monospacedDigit()
+                    .accessibilityLabel("Total \(hand.value.total)\(hand.value.soft ? ", soft" : "")")
+            }
+            .foregroundStyle(StudioTheme.onFelt)
             ViewThatFits(in: .horizontal) {
                 handCards(hand, width: cardWidth)
                 ScrollView(.horizontal) { handCards(hand, width: cardWidth).padding(.horizontal, 10) }.scrollIndicators(.hidden)
             }
-            HStack(spacing: 8) {
-                Text(game.hands.count > 1 ? "HAND \(index + 1)" : "YOUR HAND")
-                    .font(.caption2.weight(.medium)).tracking(1.5)
-                Text("\(hand.value.total)\(hand.value.soft ? " soft" : "")")
-                    .font(.caption.weight(.semibold)).monospacedDigit()
-                    .padding(.horizontal, 8).padding(.vertical, 4)
-                    .background(.white.opacity(hand.value.bust ? 0.2 : 0.1), in: Capsule())
+            VStack(spacing: 6) {
                 if let outcome = hand.outcome {
-                    Text(outcome.title).font(.caption.weight(.medium))
+                    Text(outcome.title).font(.subheadline.weight(.medium))
                 }
+                Text("\(points(hand.betCents)) points")
+                    .font(.caption).foregroundStyle(StudioTheme.onFelt.opacity(0.8))
+                if active { Text("Your turn").font(.caption.weight(.semibold)) }
             }
-            .foregroundStyle(StudioTheme.lime)
-            Text("\(points(hand.betCents)) points")
-                .font(.caption).foregroundStyle(StudioTheme.lime.opacity(0.8))
-            if active {
-                Capsule().fill(StudioTheme.lime).frame(width: 48, height: 3).accessibilityHidden(true)
-            }
+            .foregroundStyle(StudioTheme.onFelt)
         }
-        .padding(.bottom, 3)
+        .padding(12)
+        .background(StudioTheme.onFelt.opacity(active && game.hands.count > 1 ? 0.08 : 0), in: RoundedRectangle(cornerRadius: 12))
         .accessibilityElement(children: .contain)
         .accessibilityLabel(active ? "Your active hand \(index + 1)" : "Your hand \(index + 1)")
     }
@@ -274,38 +264,32 @@ struct TableScreen: View {
 
     private func placeholderCard(_ symbol: String) -> some View {
         RoundedRectangle(cornerRadius: 10)
-            .stroke(StudioTheme.lime.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            .stroke(StudioTheme.onFelt.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             .frame(width: 72, height: 101)
-            .overlay { Image(systemName: symbol).font(.title).foregroundStyle(StudioTheme.lime.opacity(0.3)) }
+            .overlay { Image(systemName: symbol).font(.title).foregroundStyle(StudioTheme.onFelt.opacity(0.3)) }
             .accessibilityHidden(true)
     }
 
     private var coachingCard: some View {
-        StudioCard {
-            VStack(alignment: .leading, spacing: 15) {
-                Toggle(isOn: Binding(get: { showCoach }, set: { model.snapshot.preferences.showCoach = $0 })) {
-                    Label("Strategy coach", systemImage: "sparkle")
-                        .font(.headline).foregroundStyle(StudioTheme.ink)
-                }
-                .accessibilityIdentifier("table.coach")
-                if showCoach {
-                    if let advice {
-                        Text("\(advice.move.title) is the move.")
-                            .font(.title3.weight(.semibold)).foregroundStyle(StudioTheme.ink)
-                        Text(advice.reason).font(.subheadline).foregroundStyle(StudioTheme.muted)
-                    } else if game.phase == .insurance {
-                        Text("Skip insurance.").font(.title3.weight(.semibold)).foregroundStyle(StudioTheme.ink)
-                        Text("Basic strategy declines this separate side bet.").font(.subheadline).foregroundStyle(StudioTheme.muted)
-                    } else if let last = model.lastDecision {
-                        Label(model.lastDecisionCorrect ? "Good decision." : "\(last.move.title) was stronger.", systemImage: model.lastDecisionCorrect ? "checkmark.circle" : "lightbulb")
-                            .font(.headline).foregroundStyle(StudioTheme.ink)
-                        Text(last.reason).font(.subheadline).foregroundStyle(StudioTheme.muted)
-                    } else {
-                        Text("Deal a hand. Find the right play.")
-                            .font(.subheadline).foregroundStyle(StudioTheme.muted)
-                    }
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(isOn: Binding(get: { showCoach }, set: { model.snapshot.preferences.showCoach = $0 })) {
+                Text("Strategy coach").font(.headline).foregroundStyle(StudioTheme.ink)
+            }
+            .accessibilityIdentifier("table.coach")
+            if showCoach {
+                if let advice {
+                    Text("Recommended: \(advice.move.title)")
+                        .font(.subheadline.weight(.semibold)).foregroundStyle(StudioTheme.ink)
+                    Text(advice.reason).font(.subheadline).foregroundStyle(StudioTheme.muted)
+                } else if game.phase == .insurance {
+                    Text("Decline insurance").font(.subheadline.weight(.semibold)).foregroundStyle(StudioTheme.ink)
+                    Text("Basic strategy declines this separate side bet.").font(.subheadline).foregroundStyle(StudioTheme.muted)
+                } else if let last = model.lastDecision {
+                    Label(model.lastDecisionCorrect ? "Correct play" : "Recommended: \(last.move.title)", systemImage: model.lastDecisionCorrect ? "checkmark.circle" : "info.circle")
+                        .font(.subheadline.weight(.semibold)).foregroundStyle(StudioTheme.ink)
+                    Text(last.reason).font(.subheadline).foregroundStyle(StudioTheme.muted)
                 } else {
-                    Text("Trust your instinct. Review afterward.")
+                    Text("Deal a hand to see the recommended move.")
                         .font(.subheadline).foregroundStyle(StudioTheme.muted)
                 }
             }
@@ -313,22 +297,22 @@ struct TableScreen: View {
     }
 
     private var countingCard: some View {
-        StudioCard {
-            VStack(alignment: .leading, spacing: 18) {
-                Toggle(isOn: Binding(get: { showCount }, set: { model.snapshot.preferences.showCount = $0 })) {
-                    Label("Show the count", systemImage: "square.stack.3d.up")
-                        .font(.headline).foregroundStyle(StudioTheme.ink)
+        VStack(alignment: .leading, spacing: 16) {
+            Toggle(isOn: Binding(get: { showCount }, set: { model.snapshot.preferences.showCount = $0 })) {
+                Text("Show the count").font(.headline).foregroundStyle(StudioTheme.ink)
+            }
+            .accessibilityIdentifier("table.count")
+            if showCount {
+                let layout = typeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .leading, spacing: 16))
+                    : AnyLayout(HStackLayout(spacing: 28))
+                layout {
+                    countStat("Running", value: signed(game.runningCount))
+                    countStat("True count", value: signedDecimal(game.trueCount))
                 }
-                .accessibilityIdentifier("table.count")
-                if showCount {
-                    HStack(spacing: 28) {
-                        countStat("Running", value: signed(game.runningCount))
-                        countStat("True count", value: signedDecimal(game.trueCount))
-                    }
-                } else {
-                    Text("Keep the running count in your head. Check it after the hand.")
-                        .font(.subheadline).foregroundStyle(StudioTheme.muted)
-                }
+            } else {
+                Text("Keep the running count in your head. Check it after the hand.")
+                    .font(.subheadline).foregroundStyle(StudioTheme.muted)
             }
         }
     }
@@ -336,46 +320,60 @@ struct TableScreen: View {
     private func countStat(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title).font(.caption).foregroundStyle(StudioTheme.muted)
-            Text(value).font(.system(.title, design: .rounded, weight: .semibold)).monospacedDigit().foregroundStyle(StudioTheme.accent)
+            Text(value).font(.title.weight(.semibold)).monospacedDigit().foregroundStyle(StudioTheme.ink)
         }.frame(maxWidth: .infinity, alignment: .leading).accessibilityElement(children: .combine)
     }
 
     private var recallCard: some View {
         StudioCard {
             VStack(alignment: .leading, spacing: 16) {
-                Label("What’s the running count?", systemImage: "brain")
+                Text("What’s the running count?")
                     .font(.headline).foregroundStyle(StudioTheme.ink)
                 if checkedRound == game.rounds {
                     Label(countWasCorrect ? "Correct. \(signed(game.runningCount))." : "The count is \(signed(game.runningCount)).", systemImage: countWasCorrect ? "checkmark.circle.fill" : "arrow.counterclockwise")
-                        .font(.title3.weight(.medium)).foregroundStyle(StudioTheme.accent)
+                        .font(.title3.weight(.medium)).foregroundStyle(countWasCorrect ? StudioTheme.accent : StudioTheme.ink)
                         .accessibilityIdentifier("table.count-feedback")
                 } else {
-                    HStack(spacing: 12) {
-                        Button { changeCount(by: -1) } label: {
-                            Image(systemName: "minus").frame(width: 48, height: 48)
+                    if typeSize.isAccessibilitySize {
+                        countAnswerField
+                        HStack(spacing: 12) {
+                            countAdjustmentButton(by: -1)
+                            countAdjustmentButton(by: 1)
                         }
-                        .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 14))
-                        .accessibilityLabel("Decrease your count answer")
-                        TextField("0", text: $countAnswer)
-                            .keyboardType(.numbersAndPunctuation).submitLabel(.done)
-                            .multilineTextAlignment(.center).font(.title2.monospacedDigit())
-                            .padding(.vertical, 12).background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 14))
-                            .focused($countIsFocused).onSubmit { checkCount() }
-                            .accessibilityLabel("Your running count").accessibilityIdentifier("table.count-answer")
-                        Button { changeCount(by: 1) } label: {
-                            Image(systemName: "plus").frame(width: 48, height: 48)
+                    } else {
+                        HStack(spacing: 12) {
+                            countAdjustmentButton(by: -1)
+                            countAnswerField
+                            countAdjustmentButton(by: 1)
                         }
-                        .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 14))
-                        .accessibilityLabel("Increase your count answer")
                     }
                     Button("Check count") { checkCount() }
                         .buttonStyle(StudioPrimaryButton())
                         .disabled(Int(countAnswer) == nil)
-                        .opacity(Int(countAnswer) == nil ? 0.5 : 1)
                         .accessibilityIdentifier("table.check-count")
                 }
             }
         }
+    }
+
+    private var countAnswerField: some View {
+        TextField("0", text: $countAnswer)
+            .keyboardType(.numbersAndPunctuation).submitLabel(.done)
+            .multilineTextAlignment(.center).font(.title2.monospacedDigit())
+            .padding(.vertical, 12).frame(minHeight: 48)
+            .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 14))
+            .focused($countIsFocused).onSubmit { checkCount() }
+            .accessibilityLabel("Your running count").accessibilityIdentifier("table.count-answer")
+    }
+
+    private func countAdjustmentButton(by amount: Int) -> some View {
+        Button { changeCount(by: amount) } label: {
+            Image(systemName: amount < 0 ? "minus" : "plus")
+                .font(.headline).padding(12)
+                .frame(minWidth: 48, maxWidth: typeSize.isAccessibilitySize ? .infinity : nil, minHeight: 48)
+                .background(StudioTheme.soft, in: RoundedRectangle(cornerRadius: 14))
+        }
+        .accessibilityLabel(amount < 0 ? "Decrease your count answer" : "Increase your count answer")
     }
 
     @ViewBuilder private var actionDock: some View {
@@ -410,7 +408,7 @@ struct TableScreen: View {
                     HStack(spacing: 9) { moveButton(.doubleDown); moveButton(.split); moveButton(.surrender) }
                 }
             } else if game.bankrollCents < 100 {
-                Text("Ready for a fresh start?").font(.headline).foregroundStyle(StudioTheme.ink)
+                Text("No practice points remaining").font(.headline).foregroundStyle(StudioTheme.ink)
                 Button("Reset practice table") { confirmingReset = true }
                     .buttonStyle(StudioPrimaryButton()).accessibilityIdentifier("table.reset-empty")
             } else {
@@ -421,9 +419,9 @@ struct TableScreen: View {
                     model.play(.deal(betCents: model.snapshot.selectedStake))
                     resetRecall()
                 } label: {
-                    HStack { Text(game.rounds == 0 ? "Deal a hand" : "Next hand"); Image(systemName: "arrow.right") }
+                    Text(game.rounds == 0 ? "Deal a hand" : "Next hand")
                 }
-                .buttonStyle(StudioPrimaryButton()).disabled(!canDeal).opacity(canDeal ? 1 : 0.5)
+                .buttonStyle(StudioPrimaryButton()).disabled(!canDeal)
                 .accessibilityIdentifier("table.deal")
             }
         }
@@ -454,9 +452,9 @@ struct TableScreen: View {
             } label: {
                 Text(points(cents)).font(.subheadline.weight(.semibold)).monospacedDigit()
                     .frame(minWidth: 48, minHeight: 44)
-                    .foregroundStyle(model.snapshot.selectedStake == cents ? StudioTheme.forest : StudioTheme.ink)
-                    .background(model.snapshot.selectedStake == cents ? StudioTheme.lime : StudioTheme.soft, in: Capsule())
-                    .overlay(Capsule().stroke(StudioTheme.line, lineWidth: 1))
+                    .padding(.horizontal, 8)
+                    .foregroundStyle(model.snapshot.selectedStake == cents ? StudioTheme.buttonText : StudioTheme.ink)
+                    .background(model.snapshot.selectedStake == cents ? StudioTheme.buttonFill : StudioTheme.soft, in: RoundedRectangle(cornerRadius: 10))
             }
             .disabled(cents > game.bankrollCents)
             .opacity(cents > game.bankrollCents ? 0.4 : 1)
@@ -466,8 +464,11 @@ struct TableScreen: View {
         if game.bankrollCents < 500 {
             Button("\(points(game.bankrollCents))") { model.snapshot.selectedStake = game.bankrollCents }
                 .font(.subheadline.weight(.semibold)).frame(minWidth: 48, minHeight: 44)
-                .background(StudioTheme.soft, in: Capsule())
+                .padding(.horizontal, 8)
+                .foregroundStyle(model.snapshot.selectedStake == game.bankrollCents ? StudioTheme.buttonText : StudioTheme.ink)
+                .background(model.snapshot.selectedStake == game.bankrollCents ? StudioTheme.buttonFill : StudioTheme.soft, in: RoundedRectangle(cornerRadius: 10))
                 .accessibilityLabel("Stake remaining \(points(game.bankrollCents)) points")
+                .accessibilityAddTraits(model.snapshot.selectedStake == game.bankrollCents ? .isSelected : [])
         }
     }
 
@@ -475,14 +476,12 @@ struct TableScreen: View {
         let available = moves.contains(move)
         let recommended = showCoach && advice?.move == move
         return Button { model.play(move.action) } label: {
-            VStack(spacing: 6) {
-                Image(systemName: move.symbol).font(.headline)
-                Text(move.title).font(.subheadline.weight(.semibold))
-            }
-            .frame(maxWidth: .infinity, minHeight: 55)
-            .padding(.vertical, 5)
-            .foregroundStyle(recommended ? StudioTheme.forest : StudioTheme.ink)
-            .background(recommended ? StudioTheme.lime : StudioTheme.soft, in: RoundedRectangle(cornerRadius: 15))
+            Text(move.title).font(.subheadline.weight(.semibold))
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .padding(.horizontal, 8).padding(.vertical, 4)
+                .foregroundStyle(recommended ? StudioTheme.buttonText : StudioTheme.ink)
+                .background(recommended ? StudioTheme.buttonFill : StudioTheme.soft, in: RoundedRectangle(cornerRadius: 12))
         }
         .disabled(!available).opacity(available ? 1 : 0.35)
         .accessibilityLabel(move.title)
@@ -507,6 +506,11 @@ struct TableScreen: View {
             }
             .accessibilityLabel("Table options").accessibilityIdentifier("table.options")
         }
+    }
+
+    private var settlementSymbol: String {
+        let profit = game.history.last?.profitCents ?? 0
+        return profit > 0 ? "plus.circle" : profit < 0 ? "minus.circle" : "equal.circle"
     }
 
     private var settlementText: String {
@@ -579,6 +583,8 @@ private struct TableRulesSheet: View {
                     Button("Use standard rules") { draft = .standard }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(StudioTheme.background)
             .navigationTitle("Table rules").navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -600,8 +606,8 @@ private struct TableHelpSheet: View {
                     help("The goal", "Get closer to 21 than the dealer without going over. Aces count as 1 or 11; picture cards count as 10.")
                     help("Your moves", "Hit takes a card. Stand keeps your total. Double adds the same stake for one final card. Split makes two hands from a pair.")
                     help("Table details", "Surrender returns half the stake. Insurance is a separate bet on dealer blackjack. Split aces receive one card; split 21 pays as a regular win.")
-                    Label("Private practice with simulated cards only.", systemImage: "checkmark.shield")
-                        .font(.subheadline).foregroundStyle(StudioTheme.accent)
+                    Text("Practice uses simulated cards only.")
+                        .font(.footnote).foregroundStyle(StudioTheme.muted)
                 }.padding(24).frame(maxWidth: 600).frame(maxWidth: .infinity)
             }
             .background(StudioTheme.background)
